@@ -124,3 +124,19 @@ extension matrix_float4x4{
         return result
     }
 }
+extension simd_float4x4 {
+    init(lookAt at: SIMD3<Float>,
+         from: SIMD3<Float>,
+         up: SIMD3<Float>)
+    {
+        let zNeg = normalize(at - from)
+        let x = normalize(cross(zNeg, up))
+        let y = normalize(cross(x, zNeg))
+        self.init(
+            SIMD4<Float>(x, 0),
+            SIMD4<Float>(y, 0),
+            SIMD4<Float>(-zNeg, 0),
+            SIMD4<Float>(from, 1)
+        )
+    }
+}
