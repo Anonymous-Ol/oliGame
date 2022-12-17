@@ -14,6 +14,8 @@ enum TextureTypes{
     
     case BaseColorRender_0
     case BaseColorRender_1
+    case ShadowRender
+    case ShadowDepth
     case BaseDepthRender
 }
 

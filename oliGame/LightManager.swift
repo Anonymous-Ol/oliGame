@@ -30,5 +30,11 @@ class LightManager{
                                               length: LightData.stride(lightDatas.count),
                                               index: 3)
     }
+    func setShadowLightData(_ renderCommandEncoder: MTLRenderCommandEncoder){
+        var lightDatas = gatherLightData()
+        var lightCount = lightDatas.count
+        renderCommandEncoder.setVertexBytes(&lightDatas, length: LightData.stride(lightDatas.count), index: 2)
+        renderCommandEncoder.setVertexBytes(&lightCount, length: Int32.size, index: 3)
+    }
 
 }

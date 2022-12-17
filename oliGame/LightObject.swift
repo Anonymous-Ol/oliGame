@@ -24,6 +24,9 @@ class LightObject: GameObject{
     override func render(renderCommandEncoder: MTLRenderCommandEncoder){
         super.render(renderCommandEncoder:  renderCommandEncoder)
     }
+    override func shadowRender(renderCommandEncoder: MTLRenderCommandEncoder){
+        super.shadowRender(renderCommandEncoder: renderCommandEncoder)
+    }
 }
 extension LightObject{
     

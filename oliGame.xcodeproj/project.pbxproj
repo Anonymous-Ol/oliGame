@@ -36,6 +36,7 @@
 		A267711E293B71B3008DEB1D /* Trees.swift in Sources */ = {isa = PBXBuildFile; fileRef = A267711D293B71B3008DEB1D /* Trees.swift */; };
 		A27872692932E1A700D93839 /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = A27872682932E1A700D93839 /* Camera.swift */; };
 		A278726B2932E28500D93839 /* DebugCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = A278726A2932E28500D93839 /* DebugCamera.swift */; };
+		A2942C402947DFE2009A7322 /* ShadowShader.metal in Sources */ = {isa = PBXBuildFile; fileRef = A2942C3F2947DFE2009A7322 /* ShadowShader.metal */; };
 		A297313A2932E61C00BA70D9 /* CameraManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A29731392932E61C00BA70D9 /* CameraManager.swift */; };
 		A29828992936EE7F00831DD6 /* Lighting.metal in Sources */ = {isa = PBXBuildFile; fileRef = A29828982936EE7F00831DD6 /* Lighting.metal */; };
 		A29DE1FE293271E2002EB0B0 /* MeshLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = A29DE1FD293271E2002EB0B0 /* MeshLibrary.swift */; };
@@ -123,6 +124,7 @@
 		A267711D293B71B3008DEB1D /* Trees.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trees.swift; sourceTree = "<group>"; };
 		A27872682932E1A700D93839 /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
 		A278726A2932E28500D93839 /* DebugCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugCamera.swift; sourceTree = "<group>"; };
+		A2942C3F2947DFE2009A7322 /* ShadowShader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ShadowShader.metal; sourceTree = "<group>"; };
 		A29731392932E61C00BA70D9 /* CameraManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraManager.swift; sourceTree = "<group>"; };
 		A29828982936EE7F00831DD6 /* Lighting.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Lighting.metal; sourceTree = "<group>"; };
 		A29DE1FD293271E2002EB0B0 /* MeshLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshLibrary.swift; sourceTree = "<group>"; };
@@ -295,6 +297,7 @@
 				A2A8125C2933EEED00DB6AE7 /* Shared.metal */,
 				A29828982936EE7F00831DD6 /* Lighting.metal */,
 				A29FECC02931733B00AA9534 /* BasicShaders.metal */,
+				A2942C3F2947DFE2009A7322 /* ShadowShader.metal */,
 				A2A8125E2933F02C00DB6AE7 /* InstancedShaders.metal */,
 				A29FECB8293164FF00AA9534 /* oliGame.entitlements */,
 			);
@@ -429,6 +432,7 @@
 				A2A8124D2933BD8F00DB6AE7 /* Quad.swift in Sources */,
 				A267711E293B71B3008DEB1D /* Trees.swift in Sources */,
 				A2A8126F293428D500DB6AE7 /* LightObject.swift in Sources */,
+				A2942C402947DFE2009A7322 /* ShadowShader.metal in Sources */,
 				A2A8127329343BCD00DB6AE7 /* Sun.swift in Sources */,
 				A2A81263293402CC00DB6AE7 /* TextureLibrary.swift in Sources */,
 				A2A8124B29339CCB00DB6AE7 /* CubeCollection.swift in Sources */,

@@ -65,6 +65,18 @@ extension InstancedGameObject: Renderable{
         //Draw the mesh
         _mesh.drawPrimitives(renderCommandEncoder)
     }
+    func doShadowRender(renderCommandEncoder: MTLRenderCommandEncoder){
+        renderCommandEncoder.setRenderPipelineState(Graphics.RenderPipelineStates[.InstancedShadow])
+
+        //Depth Stencil
+        renderCommandEncoder.setDepthStencilState(Graphics.DepthStencilStates[.Less])
+        
+        //Vertex Shading
+        renderCommandEncoder.setVertexBuffer(_modelConstantsBuffer, offset: 0, index: 1)
+        
+        //Draw the mesh
+        _mesh.drawPrimitives(renderCommandEncoder)
+    }
 
 }
 

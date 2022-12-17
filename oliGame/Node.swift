@@ -60,6 +60,16 @@ class Node{
         }
         renderCommandEncoder.popDebugGroup()
     }
+    func shadowRender(renderCommandEncoder: MTLRenderCommandEncoder){
+        renderCommandEncoder.pushDebugGroup("Rendering \(_name) Shadows")
+        for child in _children{
+            child.shadowRender(renderCommandEncoder: renderCommandEncoder)
+        }
+        if let renderable = self as? Renderable{
+            renderable.doShadowRender(renderCommandEncoder: renderCommandEncoder)
+        }
+        renderCommandEncoder.popDebugGroup()
+    }
 
 }
 

@@ -12,6 +12,23 @@ using namespace metal;
 
 class Lighting {
 public:
+    static float shadow(float3 worldPosition,
+                        depth2d<float, access::sample> depthMap,
+                        constant float4x4 &viewProjectionMatrix)
+    {
+        float4 shadowNDC = (viewProjectionMatrix * float4(worldPosition, 1));
+        shadowNDC.xyz /= shadowNDC.w;
+        float2 shadowCoords = shadowNDC.xy * 0.5 + 0.5;
+        shadowCoords.y = 1 - shadowCoords.y;
+
+        constexpr sampler shadowSampler(coord::normalized,
+                                        address::clamp_to_edge,
+                                        filter::linear,
+                                        compare_func::greater_equal);
+        float depthBias = 5e-3f;
+        float shadowCoverage = depthMap.sample_compare(shadowSampler, shadowCoords, shadowNDC.z - depthBias);
+        return shadowCoverage;
+    }
     static SceneLightData GetPhongIntensity(constant Material &material,
                                     constant LightData* lightDatas,
                                     int lightCount,

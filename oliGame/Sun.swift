@@ -12,6 +12,7 @@ class Sun: LightObject{
     init(){
         super.init(name: "Sun", meshType: .None)
         sunMaterial.color = float4(0.5,0.5,0,1.0)
+
         self.useMaterial(sunMaterial)
         self.setScale(0.3)
     }

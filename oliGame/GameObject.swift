@@ -10,6 +10,7 @@ import MetalKit
 
 class GameObject: Node{
     var renderPipelineStateType: RenderPipelineStateTypes { return .Basic }
+    var shadowRenderPipelineStateType: RenderPipelineStateTypes { return .BasicShadow}
     var time: Float = 0;
     private var _modelConstants = ModelConstants()
     private var _material: Material? = nil
@@ -38,6 +39,15 @@ extension GameObject: Renderable{
         renderCommandEncoder.setFragmentSamplerState(Graphics.SamplerStates[.Linear], index: 0)
         
         
+        _mesh.drawPrimitives(renderCommandEncoder,
+                             baseColorTextureType: _baseColorTextureType,
+                             material: _material,
+                             normalMapTextureType: _normalMapTextureType)
+    }
+    func doShadowRender(renderCommandEncoder: MTLRenderCommandEncoder){
+        renderCommandEncoder.setVertexBytes(&_modelConstants, length: ModelConstants.stride, index: 1)
+        renderCommandEncoder.setRenderPipelineState(Graphics.RenderPipelineStates[shadowRenderPipelineStateType])
+        renderCommandEncoder.setDepthStencilState(Graphics.DepthStencilStates[.Less])
         _mesh.drawPrimitives(renderCommandEncoder,
                              baseColorTextureType: _baseColorTextureType,
                              material: _material,

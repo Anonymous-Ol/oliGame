@@ -8,20 +8,25 @@
 import MetalKit
 enum ShaderTypes{
     case VertexBasic
+    case VertexBasicShadow
     case VertexInstanced
+    case VertexInstancedShadow
     case VertexSkySphere
     case VertexFinal
 
     case FragmentBasic
     case FragmentSkySphere
     case FragmentFinal
+    case FragmentBasicShadow
 }
 
 class ShaderLibrary:  Library<ShaderTypes, MTLFunction>{
     private var _library: [ShaderTypes: Shader] = [:]
     override func fillLibrary(){
         _library.updateValue(Shader(name: "Basic Vertex Shader", functionName: "basic_vertex_shader"), forKey: .VertexBasic)
+        _library.updateValue(Shader(name: "Basic Shadow Vertex Shader", functionName: "vertex_shadow"), forKey: .VertexBasicShadow)
         _library.updateValue(Shader(name: "Instanced Vertex Shader", functionName: "instanced_vertex_shader"), forKey: .VertexInstanced)
+        _library.updateValue(Shader(name: "Instanced Shadow Vertex Shader", functionName: "instanced_vertex_shadow"), forKey: .VertexInstancedShadow)
         
         
         _library.updateValue(Shader(name: "SkySphere Vertex Shader", functionName: "skysphere_vertex_shader"), forKey: .VertexSkySphere)
@@ -34,8 +39,8 @@ class ShaderLibrary:  Library<ShaderTypes, MTLFunction>{
         
         
         _library.updateValue(Shader(name: "Basic Fragment Shader", functionName: "basic_fragment_shader"), forKey: .FragmentBasic)
-
-        
+        _library.updateValue(Shader(name: "Basic Shadow Fragment Shader", functionName: "basic_shadow_frag"), forKey: .FragmentBasicShadow)
+    
         
         _library.updateValue(Shader(name: "SkySphere Fragment Shader", functionName: "skysphere_fragment_shader"), forKey: .FragmentSkySphere)
         _library.updateValue(Shader(name: "Final Fragment Shader", functionName: "final_fragment_shader"), forKey: .FragmentFinal)

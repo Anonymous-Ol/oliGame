@@ -33,5 +33,8 @@ class SceneManager{
 
         _currentScene.render(renderCommandEncoder: renderCommandEncoder)
     }
+    public static func ShadowRender(renderCommandEncoder: MTLRenderCommandEncoder){
+        _currentScene.shadowRender(renderCommandEncoder: renderCommandEncoder)
+    }
 
 }

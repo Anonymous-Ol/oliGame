@@ -9,9 +9,9 @@ import MetalKit
 
 enum RenderPipelineStateTypes{
     case Basic
-    
+    case BasicShadow
     case Instanced
-    
+    case InstancedShadow
     case SkySphere
     case Final
 }
@@ -22,9 +22,11 @@ class RenderPipelineStateLibrary: Library<RenderPipelineStateTypes, MTLRenderPip
         
     override func fillLibrary(){
         _library.updateValue(basicRenderPipelineState(), forKey: .Basic)
-        
+        _library.updateValue(basicShadowRenderPipelineState(), forKey: .BasicShadow)
+
         
         _library.updateValue(instancedRenderPipelineState(), forKey: .Instanced)
+        _library.updateValue(instancedShadowRenderPipelineState(), forKey: .InstancedShadow)
         
         
         _library.updateValue(SkySphereRenderPipelineState(), forKey: .SkySphere)
@@ -62,6 +64,20 @@ class basicRenderPipelineState: RenderPipelineState{
         super.init(renderPipelineDescriptor)
     }
 }
+class basicShadowRenderPipelineState: RenderPipelineState{
+    init(){
+        let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
+
+        renderPipelineDescriptor.depthAttachmentPixelFormat = .depth32Float
+        
+        renderPipelineDescriptor.vertexFunction = Graphics.Shaders[.VertexBasicShadow]
+        renderPipelineDescriptor.fragmentFunction = nil
+        
+        renderPipelineDescriptor.vertexDescriptor = Graphics.VertexDescriptors[.Basic]
+        
+        super.init(renderPipelineDescriptor)
+    }
+}
 class instancedRenderPipelineState: RenderPipelineState{
     init(){
         let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
@@ -73,6 +89,20 @@ class instancedRenderPipelineState: RenderPipelineState{
         
         renderPipelineDescriptor.vertexFunction = Graphics.Shaders[.VertexInstanced]
         renderPipelineDescriptor.fragmentFunction = Graphics.Shaders[.FragmentBasic]
+        
+        renderPipelineDescriptor.vertexDescriptor = Graphics.VertexDescriptors[.Basic]
+        
+        super.init(renderPipelineDescriptor)
+    }
+}
+class instancedShadowRenderPipelineState: RenderPipelineState{
+    init(){
+        let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
+        
+        renderPipelineDescriptor.depthAttachmentPixelFormat = .depth32Float
+        
+        renderPipelineDescriptor.vertexFunction = Graphics.Shaders[.VertexInstancedShadow]
+        renderPipelineDescriptor.fragmentFunction = nil
         
         renderPipelineDescriptor.vertexDescriptor = Graphics.VertexDescriptors[.Basic]
         

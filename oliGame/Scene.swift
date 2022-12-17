@@ -54,6 +54,10 @@ class Scene: Node{
         _lightManager.setLightData(renderCommandEncoder)
         super.render(renderCommandEncoder: renderCommandEncoder)
     }
+    override func shadowRender(renderCommandEncoder: MTLRenderCommandEncoder) {
+        _lightManager.setShadowLightData(renderCommandEncoder)
+        super.shadowRender(renderCommandEncoder: renderCommandEncoder)
+    }
     static func calculate_lookAt_matrix(position: float3, target: float3, worldUp: float3) -> float4x4
     {
         // 1. Position = known
