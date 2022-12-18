@@ -26,13 +26,13 @@ class ForestScene: Scene{
         addCamera(debugCamera)
         
         let terrain = GameObject(name:"terrain", meshType: .GroundGrass)
-        terrain.setScale(200)
+        terrain.setScale(300)
         addChild(terrain)
         
-        let flowers = Flowers(flowerRedCount: 2000, flowerPurpleCount: 2000, flowerYellowCount: 2000)
+        let flowers = Flowers(flowerRedCount: 10, flowerPurpleCount: 10, flowerYellowCount: 10)
         addChild(flowers)
-        
-        let trees = Trees(treeACount: 1000, treeBCount: 1000, treeCCount: 1000)
+    
+        let trees = Trees(treeACount: 20, treeBCount: 20, treeCCount: 20)
         addChild(trees)
         
 

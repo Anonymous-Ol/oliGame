@@ -23,6 +23,7 @@ vertex RasterizerData basic_vertex_shader(const VertexIn verticesIn [[stage_in]]
     
         float4 worldPosition = modelConstants.modelMatrix * float4(verticesIn.position, 1);
         rd.position = sceneConstants.projectionMatrix * sceneConstants.viewMatrix * worldPosition;
+        
     
 
         
@@ -50,7 +51,8 @@ fragment FragOutput basic_fragment_shader(RasterizerData rd [[stage_in]],
                                      constant float3 &cameraPosition [[buffer(4)]],
                                      sampler sampler2d [[sampler(0)]],
                                      texture2d<float> baseColorMap [[texture(0)]],
-                                     texture2d<float> normalMap [[texture(1)]]){
+                                     texture2d<float> normalMap [[texture(1)]],
+                                     depth2d<float, access::sample> shadowMap [[texture(2)]]){
         FragOutput out;
 
         float3 position = rd.vertexPosition;
@@ -71,8 +73,10 @@ fragment FragOutput basic_fragment_shader(RasterizerData rd [[stage_in]],
                 
             }
             float3 unitToCameraVector = normalize(rd.toCameraVector);
-            
-            
+            float4x4 shadowViewMatrix = Lighting::calculate_lookAt_matrix(float3(0,100,100), float3(0,0,0), float3(0,1,0));
+            float4x4 shadowProjectionMatrix = Lighting::ortho(-35,35,-35,35,0.1,1000);
+            float4x4 biasedLightViewProjectMatrix = shadowProjectionMatrix * shadowViewMatrix;
+            float shadowFactor = 1 - Lighting::shadow(rd.worldPosition, shadowMap, biasedLightViewProjectMatrix);
             
             SceneLightData sceneLighting = Lighting::GetPhongIntensity(material,
                                                                        lightDatas,
@@ -81,7 +85,8 @@ fragment FragOutput basic_fragment_shader(RasterizerData rd [[stage_in]],
                                                                        unitNormal,
                                                                        unitToCameraVector,
                                                                        position,
-                                                                       cameraPosition);
+                                                                       cameraPosition,
+                                                                       shadowFactor);
             
             
             color *= float4(sceneLighting.phongIntensity, 1.0);

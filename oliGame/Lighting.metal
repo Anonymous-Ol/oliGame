@@ -14,21 +14,32 @@ class Lighting {
 public:
     static float shadow(float3 worldPosition,
                         depth2d<float, access::sample> depthMap,
-                        constant float4x4 &viewProjectionMatrix)
+                        const float4x4 viewProjectionMatrix)
     {
+        float4x4 newViewProjectionMatrix = {
+            0.028571427, 0.0, 0.0, 0.0,
+            0.0, 0.020203048, -0.00070717745, 0.0,
+            0.0, -0.020203048, -0.00070717745, 0.0,
+            0.0, 0.0, 0.14133547, 1.0
+        };
         float4 shadowNDC = (viewProjectionMatrix * float4(worldPosition, 1));
         shadowNDC.xyz /= shadowNDC.w;
-        float2 shadowCoords = shadowNDC.xy * 0.5 + 0.5;
+        float3 shadowCoords = shadowNDC.xyz * 0.5 + 0.5;
         shadowCoords.y = 1 - shadowCoords.y;
 
         constexpr sampler shadowSampler(coord::normalized,
                                         address::clamp_to_edge,
                                         filter::linear,
                                         compare_func::greater_equal);
-        float depthBias = 5e-3f;
-        float shadowCoverage = depthMap.sample_compare(shadowSampler, shadowCoords, shadowNDC.z - depthBias);
-        return shadowCoverage;
+        float bias = 0.0001;
+        if(depthMap.sample(shadowSampler, shadowCoords.xy )  <  shadowCoords.z - bias){
+            return 1;
+        }else{
+            return 0.5;
+        }
+    
     }
+
     static SceneLightData GetPhongIntensity(constant Material &material,
                                     constant LightData* lightDatas,
                                     int lightCount,
@@ -36,7 +47,8 @@ public:
                                     float3 unitNormal,
                                     float3 unitToCameraVector,
                                     float3 position,
-                                    float3 cameraPosition){
+                                    float3 cameraPosition,
+                                    float shadowFactor){
         float3 totalDiffuse  = float3(0,0,0);
         float3 totalAmbient  = float3(0,0,0);
         float3 totalSpecular = float3(0,0,0);
@@ -56,7 +68,7 @@ public:
             float3 diffuseness= material.diffuse * lightData.diffuseIntensity;
             float nDotL = max(dot(unitNormal, unitToLightVector), 0.0);
             float correctedNDotL = max(nDotL, 0.3);
-            float3 diffuseColor = clamp(diffuseness * correctedNDotL * lightData.color * lightData.brightness, 0.0, 1.0);
+            float3 diffuseColor = clamp(shadowFactor * diffuseness * correctedNDotL * lightData.color * lightData.brightness, 0.0, 1.0);
             totalDiffuse += diffuseColor;
             
             if(nDotL <= 0){
@@ -75,7 +87,7 @@ public:
             //float  specularExp  = pow(rDotV, material.shininess);
             //Specular Color Calculation
             float3 specularness = material.specular * lightData.specularIntensity;
-            float3 specularColor = clamp(specularness * spec * lightData.color * lightData.brightness, 0.0, 1.0);
+            float3 specularColor = clamp(shadowFactor * specularness * spec * lightData.color * lightData.brightness, 0.0, 1.0);
             totalSpecular += specularColor;
             
         }
@@ -133,6 +145,19 @@ public:
         Result[3][1] = - (top + bottom) / (top - bottom);
         Result[3][2] = - (zFar + zNear) / (zFar - zNear);
         return Result;
+    }
+    static float4x4 my_PerspectiveFOV(float fov, float aspect, float near, float far) {
+        float D2R = 3.14159 / 180.0;
+        float yScale = 1.0 / tan(D2R * fov / 2);
+        float xScale = yScale / aspect;
+        float nearmfar = near - far;
+        float4x4 m = {
+            xScale, 0, 0, 0,
+            0, yScale, 0, 0,
+            0, 0, (far + near) / nearmfar, -1,
+            0, 0, 2*far*near / nearmfar, 0
+        };
+        return m;
     }
 };
 

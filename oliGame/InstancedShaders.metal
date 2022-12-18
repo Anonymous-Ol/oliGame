@@ -19,6 +19,7 @@ vertex RasterizerData instanced_vertex_shader(const VertexIn verticesIn [[stage_
         ModelConstants modelConstant = modelConstants[instanceId];
     
         float4 worldPosition = modelConstant.modelMatrix * float4(verticesIn.position, 1);
+    
         rd.position = sceneConstants.projectionMatrix * sceneConstants.viewMatrix * worldPosition;
         
         

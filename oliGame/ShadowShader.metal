@@ -51,24 +51,15 @@ vertex RasterizerData instanced_vertex_shadow(
     RasterizerData srd;
     ModelConstants modelConstant = multipleModelConstants[instanceId];
     float4 worldPosition = modelConstant.modelMatrix * float4(in.position, 1);
-    
-    float4x4 shadowViewMatrix = Lighting::calculate_lookAt_matrix(float3(0,100,100), float3(0,0,0), float3(0,1,0));
-    float4x4 shadowProjectionMatrix = Lighting::ortho(-35,35,-35,35,0.1,1000);
-    float4x4 biasMatrix(
-    0.5, 0.0, 0.0, 0.0,
-    0.0, 0.5, 0.0, 0.0,
-    0.0, 0.0, 0.5, 0.0,
-    0.5, 0.5, 0.5, 1.0
-    );
-    
-    float4x4 shadowMVP = shadowViewMatrix * shadowProjectionMatrix;
-    float4x4 biasedShadowMVP = shadowMVP * biasMatrix;
-    
-    srd.position = float4((worldPosition * biasedShadowMVP).xyz, 1);
+
+    float4x4 shadowMVP = lightDatas[0].projectionViewMatrix;
+    srd.position = shadowMVP * worldPosition;
+    //srd.position.z = abs(srd.position.z);
     return srd;
 }
 
 fragment ShadowFragOutput basic_shadow_frag(RasterizerData srd [[stage_in]]){
+    ///Note: UNUSED
     ShadowFragOutput sfo;
     sfo.color = half4(srd.position.z, srd.position.z, srd.position.z, 1);
 

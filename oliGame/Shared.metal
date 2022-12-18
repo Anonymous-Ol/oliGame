@@ -64,11 +64,11 @@ struct LightData{
     float ambientIntensity;
     float diffuseIntensity;
     float specularIntensity;
-    float4x4 projectionMatrix;
-    float4x4 viewMatrix;
+    float4x4 projectionViewMatrix;
 };
 struct SceneLightData{
     float3 phongIntensity;
+    
 };
 struct ShadowRasterizerData{
     float4 position  [[position]];

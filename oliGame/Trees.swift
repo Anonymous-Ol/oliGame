@@ -25,12 +25,12 @@ class Trees: Node {
         
     }
     private func updateTreePosition(tree: Node, index: Int){
-        let treeRadius: Float = Float.random(in: 8...70)
+        let treeRadius: Float = Float.random(in: 8...90)
         let pos = float3(cos(Float(index)) * treeRadius,
                          0,
                          sin(Float(index)) * treeRadius)
         tree.setPosition(pos)
-        tree.setScale(Float.random(in:1...2))
+        tree.setScale(Float.random(in:1...1.5))
         tree.rotateY(Float.random(in: 0...360))
     }
 }

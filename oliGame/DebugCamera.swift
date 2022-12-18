@@ -21,7 +21,6 @@ class DebugCamera: Camera{
     private var _turnSpeed: Float = 1.0
      
     override func doUpdate(){
-        
         if(Mouse.IsMouseButtonPressed(button: .RIGHT)){
             self.rotateY(Mouse.GetDX() * GameTime.DeltaTime * _turnSpeed)
             self.rotateX(Mouse.GetDY() * GameTime.DeltaTime * _turnSpeed)
@@ -39,6 +38,12 @@ class DebugCamera: Camera{
         }
         if(Keyboard.IsKeyPressed(.leftArrow)){
             self.moveX(-GameTime.DeltaTime * _moveSpeed)
+        }
+        if(Keyboard.IsKeyPressed(.w)){
+            self.moveZ(GameTime.DeltaTime * _moveSpeed)
+        }
+        if(Keyboard.IsKeyPressed(.s)){
+            self.moveZ(-GameTime.DeltaTime * _moveSpeed)
         }
         if(Keyboard.IsKeyPressed(.upArrow)){
             self.moveY(GameTime.DeltaTime * _moveSpeed)

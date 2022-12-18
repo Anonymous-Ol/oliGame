@@ -17,7 +17,7 @@ class Engine{
         self.Device = device
         self.DefaultLibrary = Device.makeDefaultLibrary()
         self.CommandQueue = Device.makeCommandQueue()
-        
+    
         Graphics.initialize()
         Assets.initialize()
         

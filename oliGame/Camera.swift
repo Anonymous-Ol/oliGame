@@ -12,7 +12,7 @@ enum CameraTypes {
 
 class Camera: Node {
     var cameraType: CameraTypes!
-    private var _viewMatrix = matrix_identity_float4x4
+    var _viewMatrix = matrix_identity_float4x4
     var viewMatrix: matrix_float4x4 {
         return _viewMatrix
     }

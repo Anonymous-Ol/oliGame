@@ -76,7 +76,6 @@ struct LightData: sizeable{
     var ambientInensity:      Float  =  1.0
     var diffuseIntensity:     Float  =  1.0
     var specularIntensity:    Float  =  1.0
-    var projectionMatrix:     float4x4 = matrix_identity_float4x4
-    var viewMatrix:           float4x4 = matrix_identity_float4x4
+    var projectionViewMatrix:     float4x4 = matrix_identity_float4x4
     
 }

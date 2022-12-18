@@ -31,7 +31,7 @@ class Renderer: NSObject{
 
         
         shadowDepthTextureDescriptor.storageMode = .private
-       shadowDepthTextureDescriptor.usage = [.renderTarget]
+        shadowDepthTextureDescriptor.usage = [.renderTarget, .shaderRead]
 
         Assets.Textures.setTexture(textureType: .ShadowDepth,
                                    texture: Engine.Device.makeTexture(descriptor: shadowDepthTextureDescriptor)!)
@@ -104,38 +104,6 @@ class Renderer: NSObject{
 }
 
 extension Renderer: MTKViewDelegate{
-    /*func image(from texture: MTLTexture) -> NSImage? {
-        let bytesPerPixel = 4
-
-        // The total number of bytes of the texture
-        let imageByteCount = texture.width * texture.height * bytesPerPixel
-
-        // The number of bytes for each image row
-        let bytesPerRow = texture.width * bytesPerPixel
-
-        // An empty buffer that will contain the image
-        var src = [UInt8](repeating: 0, count: Int(imageByteCount))
-
-        // Gets the bytes from the texture
-        let region = MTLRegionMake2D(0, 0, texture.width, texture.height)
-        texture.getBytes(&src, bytesPerRow: bytesPerRow, from: region, mipmapLevel: 0)
-
-        // Creates an image context
-        let bitmapInfo = CGBitmapInfo(rawValue: (CGBitmapInfo.byteOrder32Big.rawValue | CGImageAlphaInfo.premultipliedLast.rawValue))
-        let bitsPerComponent = 8
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-        let context = CGContext(data: &src, width: texture.width, height: texture.height, bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: bitmapInfo.rawValue)
-
-        // Creates the image from the graphics context
-        guard let dstImage = context?.makeImage() else { return nil }
-
-        // Creates the final UIImage
-        do{
-            return try NSImage(cgImage: dstImage, size: NSSize(from: 0 as! Decoder))
-        }catch{
-            
-        }
-    }*/
     public func updateScreenSize(view: MTKView){
         Renderer.ScreenSize = float2(Float(view.currentDrawable!.texture.width), Float(view.currentDrawable!.texture.height))
 
@@ -143,26 +111,27 @@ extension Renderer: MTKViewDelegate{
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
        updateScreenSize(view: view)
     }
+    func shadowRenderPass(commandBuffer: MTLCommandBuffer){
+        let renderCommandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: _shadowRenderPassDescriptor)
+        renderCommandEncoder?.label = "Shadow RENDER COMMAND ENCODER"
+        renderCommandEncoder?.pushDebugGroup("Starting Shadow Render")
+        //renderCommandEncoder?.setCullMode(.back)
+        SceneManager.ShadowRender(renderCommandEncoder: renderCommandEncoder!)
+        renderCommandEncoder?.popDebugGroup()
+        renderCommandEncoder?.endEncoding()
 
+    }
     func baseRenderPass(commandBuffer: MTLCommandBuffer){
-            
             let renderCommandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: _baseRenderPassDescriptor)
             renderCommandEncoder?.label = "Base RENDER COMMAND ENCODER"
             renderCommandEncoder?.pushDebugGroup("Starting Render")
+            //renderCommandEncoder?.setCullMode(.back)
+            renderCommandEncoder?.setFragmentTexture(Assets.Textures[.ShadowDepth], index: 2)
             SceneManager.Render(renderCommandEncoder: renderCommandEncoder!)
             renderCommandEncoder?.popDebugGroup()
             renderCommandEncoder?.endEncoding()
 
         
-    }
-    func shadowRenderPass(commandBuffer: MTLCommandBuffer){
-        let renderCommandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: _shadowRenderPassDescriptor)
-        renderCommandEncoder?.label = "Shadow RENDER COMMAND ENCODER"
-        renderCommandEncoder?.pushDebugGroup("Starting Shadow Render")
-        SceneManager.ShadowRender(renderCommandEncoder: renderCommandEncoder!)
-        renderCommandEncoder?.popDebugGroup()
-        renderCommandEncoder?.endEncoding()
-
     }
     func finalRenderPass(view: MTKView, commandBuffer: MTLCommandBuffer){
             let renderCommandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: view.currentRenderPassDescriptor!)
