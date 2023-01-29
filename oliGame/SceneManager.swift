@@ -13,28 +13,39 @@ enum SceneTypes{
 }
 
 class SceneManager{
-    private static var _currentScene: Scene!
-    
+    static var currentScene: Scene!
     public static func SetScene(_ sceneType: SceneTypes){
         switch sceneType{
         case .Sandbox:
-            _currentScene = SandboxScene(name: "SandboxScene")
+            currentScene = SandboxScene(name: "SandboxScene")
         case .Forest:
-            _currentScene = ForestScene(name:"ForestScene")
+            currentScene = ForestScene(name:"ForestScene")
         }
         
     }
+
     public static func Update(deltaTime: Float){
         GameTime.UpdateTime(_deltaTime: deltaTime)
-        _currentScene.updateCameras(deltaTime: deltaTime)
-        _currentScene.update(deltaTime: deltaTime)
+        currentScene.updateCameras(deltaTime: deltaTime)
+        currentScene.update(deltaTime: deltaTime)
     }
     public static func Render(renderCommandEncoder: MTLRenderCommandEncoder){
 
-        _currentScene.render(renderCommandEncoder: renderCommandEncoder)
+        currentScene.render(renderCommandEncoder: renderCommandEncoder)
+    }
+    public static func CopyShadowData(blitCommandEncoder: MTLBlitCommandEncoder){
+        currentScene.copyShadowData(blitCommandEncoder: blitCommandEncoder)
     }
     public static func ShadowRender(renderCommandEncoder: MTLRenderCommandEncoder){
-        _currentScene.shadowRender(renderCommandEncoder: renderCommandEncoder)
+        currentScene.shadowRender(renderCommandEncoder: renderCommandEncoder)
     }
-
+    public static func doShadowRender(commandBuffer: MTLCommandBuffer){
+        currentScene.doShadowRender(commandBuffer:  commandBuffer)
+    }
+    public static func doReflectionRender(commandBuffer: MTLCommandBuffer){
+        currentScene.doReflectionRender(commandBuffer: commandBuffer)
+    }
+    public static func ReflectionRender(commandBuffer: MTLCommandBuffer, position: float3) -> MTLTexture{
+        return(currentScene.ReflectionRender(commandBuffer: commandBuffer, position: position))
+    }
 }

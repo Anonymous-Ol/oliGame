@@ -10,9 +10,12 @@ import MetalKit
 enum RenderPipelineStateTypes{
     case Basic
     case BasicShadow
+    case BasicCubemap
     case Instanced
     case InstancedShadow
+    case InstancedCubemap
     case SkySphere
+    case SkySphereCubemap
     case Final
 }
 
@@ -23,13 +26,16 @@ class RenderPipelineStateLibrary: Library<RenderPipelineStateTypes, MTLRenderPip
     override func fillLibrary(){
         _library.updateValue(basicRenderPipelineState(), forKey: .Basic)
         _library.updateValue(basicShadowRenderPipelineState(), forKey: .BasicShadow)
+        _library.updateValue(basicCubemapRenderPipelineState(), forKey: .BasicCubemap)
 
         
         _library.updateValue(instancedRenderPipelineState(), forKey: .Instanced)
         _library.updateValue(instancedShadowRenderPipelineState(), forKey: .InstancedShadow)
+        _library.updateValue(instancedCubemapRenderPipelineState(), forKey: .InstancedCubemap)
         
         
         _library.updateValue(SkySphereRenderPipelineState(), forKey: .SkySphere)
+        _library.updateValue(SkySphereCubemapRenderPipelineState(), forKey: .SkySphereCubemap)
         _library.updateValue(finalRenderPipelineState(), forKey: .Final)
     }
     override subscript(_ type: RenderPipelineStateTypes) -> MTLRenderPipelineState {
@@ -52,7 +58,6 @@ class basicRenderPipelineState: RenderPipelineState{
         let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
         
         renderPipelineDescriptor.colorAttachments[0].pixelFormat = Preferences.MainPixelFomat
-        renderPipelineDescriptor.colorAttachments[1].pixelFormat = Preferences.MainPixelFomat
         
         renderPipelineDescriptor.depthAttachmentPixelFormat = Preferences.MainDethPixelFomat
         
@@ -78,12 +83,30 @@ class basicShadowRenderPipelineState: RenderPipelineState{
         super.init(renderPipelineDescriptor)
     }
 }
+class basicCubemapRenderPipelineState: RenderPipelineState{
+    
+    init(){
+        let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
+        
+        renderPipelineDescriptor.colorAttachments[0].pixelFormat = Preferences.MainPixelFomat
+        
+        renderPipelineDescriptor.depthAttachmentPixelFormat = Preferences.MainDethPixelFomat
+        
+        renderPipelineDescriptor.vertexFunction = Graphics.Shaders[.VertexBasicCubemap]
+        renderPipelineDescriptor.fragmentFunction = Graphics.Shaders[.FragmentCubemap]
+        
+        renderPipelineDescriptor.vertexDescriptor = Graphics.VertexDescriptors[.Basic]
+        
+        renderPipelineDescriptor.inputPrimitiveTopology = .triangle
+        
+        super.init(renderPipelineDescriptor)
+    }
+}
 class instancedRenderPipelineState: RenderPipelineState{
     init(){
         let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
         
         renderPipelineDescriptor.colorAttachments[0].pixelFormat = Preferences.MainPixelFomat
-        renderPipelineDescriptor.colorAttachments[1].pixelFormat = Preferences.MainPixelFomat
         
         renderPipelineDescriptor.depthAttachmentPixelFormat = Preferences.MainDethPixelFomat
         
@@ -109,13 +132,30 @@ class instancedShadowRenderPipelineState: RenderPipelineState{
         super.init(renderPipelineDescriptor)
     }
 }
+class instancedCubemapRenderPipelineState: RenderPipelineState{
+    init(){
+        let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
+        
+        renderPipelineDescriptor.colorAttachments[0].pixelFormat = Preferences.MainPixelFomat
+        
+        renderPipelineDescriptor.depthAttachmentPixelFormat = Preferences.MainDethPixelFomat
+        
+        renderPipelineDescriptor.vertexFunction = Graphics.Shaders[.VertexInstancedCubemap]
+        renderPipelineDescriptor.fragmentFunction = Graphics.Shaders[.FragmentCubemap]
+        
+        renderPipelineDescriptor.vertexDescriptor = Graphics.VertexDescriptors[.Basic]
+        
+        renderPipelineDescriptor.inputPrimitiveTopology = .triangle
+        
+        super.init(renderPipelineDescriptor)
+    }
+}
 class SkySphereRenderPipelineState: RenderPipelineState{
     
     init(){
         let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
         
         renderPipelineDescriptor.colorAttachments[0].pixelFormat = Preferences.MainPixelFomat
-        renderPipelineDescriptor.colorAttachments[1].pixelFormat = Preferences.MainPixelFomat
         
         renderPipelineDescriptor.depthAttachmentPixelFormat = Preferences.MainDethPixelFomat
         
@@ -123,6 +163,25 @@ class SkySphereRenderPipelineState: RenderPipelineState{
         renderPipelineDescriptor.fragmentFunction = Graphics.Shaders[.FragmentSkySphere]
         
         renderPipelineDescriptor.vertexDescriptor = Graphics.VertexDescriptors[.Basic]
+        
+        super.init(renderPipelineDescriptor)
+    }
+}
+class SkySphereCubemapRenderPipelineState: RenderPipelineState{
+    
+    init(){
+        let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
+        
+        renderPipelineDescriptor.colorAttachments[0].pixelFormat = Preferences.MainPixelFomat
+        
+        renderPipelineDescriptor.depthAttachmentPixelFormat = Preferences.MainDethPixelFomat
+        
+        renderPipelineDescriptor.vertexFunction = Graphics.Shaders[.VertexSkySphereCubemap]
+        renderPipelineDescriptor.fragmentFunction = Graphics.Shaders[.FragmentSkySphereCubemap]
+        
+        renderPipelineDescriptor.vertexDescriptor = Graphics.VertexDescriptors[.Basic]
+        
+        renderPipelineDescriptor.inputPrimitiveTopology = .triangle
         
         super.init(renderPipelineDescriptor)
     }
@@ -139,6 +198,8 @@ class finalRenderPipelineState: RenderPipelineState{
         renderPipelineDescriptor.fragmentFunction = Graphics.Shaders[.FragmentFinal]
         
         renderPipelineDescriptor.vertexDescriptor = Graphics.VertexDescriptors[.Basic]
+        
+        renderPipelineDescriptor.inputPrimitiveTopology = .triangle
         
         super.init(renderPipelineDescriptor)
     }

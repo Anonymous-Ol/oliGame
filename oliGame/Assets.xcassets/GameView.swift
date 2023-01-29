@@ -1,7 +1,7 @@
 import MetalKit
 
 class GameView: MTKView {
-
+    
     var renderer: Renderer!
     required init(coder: NSCoder) {
         super.init(coder: coder)
@@ -11,6 +11,10 @@ class GameView: MTKView {
         self.colorPixelFormat = Preferences.MainPixelFomat
         
         Engine.Ignite(device: device!)
+        
+        self.preferredFramesPerSecond = 120
+        
+        
         
         self.renderer = Renderer(self)
 
@@ -25,6 +29,7 @@ class GameView: MTKView {
 
     
 }
+
 extension GameView{
     override var acceptsFirstResponder: Bool {return true;}
     override func keyDown(with event: NSEvent){

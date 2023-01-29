@@ -10,8 +10,9 @@ import MetalKit
 
 class Renderer: NSObject{
     public static var ScreenSize: float2 = float2(0)
+    public static var shadowRenders: [MTLTexture] =  []
     private var _baseRenderPassDescriptor:   MTLRenderPassDescriptor!
-    private var _shadowRenderPassDescriptor: MTLRenderPassDescriptor!
+    var shadowRenderPassDescriptor: MTLRenderPassDescriptor!
     private var _firstDraw: Bool = true
     public static var AspectRation: Float{
         return ScreenSize.x/ScreenSize.y
@@ -20,34 +21,9 @@ class Renderer: NSObject{
         super.init()
         updateScreenSize(view: mtkView)
         SceneManager.SetScene(.Forest)
+
     }
-    private func createShadowRenderPassDescriptor(view: MTKView){
 
-        let shadowDepthTextureDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .depth32Float,
-                                                                                    width: view.currentDrawable!.texture.width,
-                                                                                    height: view.currentDrawable!.texture.height,
-                                                                                    mipmapped: false)
-        
-
-        
-        shadowDepthTextureDescriptor.storageMode = .private
-        shadowDepthTextureDescriptor.usage = [.renderTarget, .shaderRead]
-
-        Assets.Textures.setTexture(textureType: .ShadowDepth,
-                                   texture: Engine.Device.makeTexture(descriptor: shadowDepthTextureDescriptor)!)
-        
-        
-        self._shadowRenderPassDescriptor = MTLRenderPassDescriptor()
-        
-        
-        self._shadowRenderPassDescriptor.depthAttachment.texture = Assets.Textures[.ShadowDepth]
-        self._shadowRenderPassDescriptor.depthAttachment.loadAction =  .clear
-        self._shadowRenderPassDescriptor.depthAttachment.clearDepth = 1.0
-        self._shadowRenderPassDescriptor.depthAttachment.storeAction = .store
-
-
-        
-    }
     private func createBaseRenderPassDescriptor(view: MTKView){
         ///Base Color Texture 0
         let base0TextureDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: Preferences.MainPixelFomat,
@@ -92,11 +68,6 @@ class Renderer: NSObject{
         self._baseRenderPassDescriptor.colorAttachments[0].storeAction = .store
         self._baseRenderPassDescriptor.colorAttachments[0].loadAction = .clear
         
-        self._baseRenderPassDescriptor.colorAttachments[1].texture = Assets.Textures[.BaseColorRender_1]!
-        self._baseRenderPassDescriptor.colorAttachments[1].storeAction = .store
-        self._baseRenderPassDescriptor.colorAttachments[1].loadAction = .clear
-        
-        
         self._baseRenderPassDescriptor.depthAttachment.texture = Assets.Textures[.BaseDepthRender]
 
         
@@ -109,24 +80,31 @@ extension Renderer: MTKViewDelegate{
 
     }
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-       updateScreenSize(view: view)
+        updateScreenSize(view: view)
     }
-    func shadowRenderPass(commandBuffer: MTLCommandBuffer){
-        let renderCommandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: _shadowRenderPassDescriptor)
-        renderCommandEncoder?.label = "Shadow RENDER COMMAND ENCODER"
-        renderCommandEncoder?.pushDebugGroup("Starting Shadow Render")
-        //renderCommandEncoder?.setCullMode(.back)
-        SceneManager.ShadowRender(renderCommandEncoder: renderCommandEncoder!)
-        renderCommandEncoder?.popDebugGroup()
-        renderCommandEncoder?.endEncoding()
+    func copyShadowTextureData(commandBuffer: MTLCommandBuffer){
+        let blitCommandEncoder = commandBuffer.makeBlitCommandEncoder()
+        blitCommandEncoder?.label = "Base Blit COMMAND ENCODER"
+        blitCommandEncoder?.pushDebugGroup("Starting Copy")
+        SceneManager.CopyShadowData(blitCommandEncoder: blitCommandEncoder!)
+        blitCommandEncoder?.popDebugGroup()
+        blitCommandEncoder?.endEncoding()
+    }
+    func cubeMapRenderPass(commandBuffer: MTLCommandBuffer){
+            let renderCommandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: _baseRenderPassDescriptor)
+            renderCommandEncoder?.label = "Cube Map Render Command Encoder"
+            renderCommandEncoder?.pushDebugGroup("Starting Render")
+            //renderCommandEncoder?.setCullMode(.front)
+            renderCommandEncoder?.popDebugGroup()
+            renderCommandEncoder?.endEncoding()
 
+        
     }
     func baseRenderPass(commandBuffer: MTLCommandBuffer){
             let renderCommandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: _baseRenderPassDescriptor)
             renderCommandEncoder?.label = "Base RENDER COMMAND ENCODER"
             renderCommandEncoder?.pushDebugGroup("Starting Render")
-            //renderCommandEncoder?.setCullMode(.back)
-            renderCommandEncoder?.setFragmentTexture(Assets.Textures[.ShadowDepth], index: 2)
+            //renderCommandEncoder?.setCullMode(.front)
             SceneManager.Render(renderCommandEncoder: renderCommandEncoder!)
             renderCommandEncoder?.popDebugGroup()
             renderCommandEncoder?.endEncoding()
@@ -150,19 +128,23 @@ extension Renderer: MTKViewDelegate{
         SceneManager.Update(deltaTime:  1 / Float(view.preferredFramesPerSecond))
         if(_firstDraw){
             createBaseRenderPassDescriptor(view: view)
-            createShadowRenderPassDescriptor(view: view)
         }
         guard let sceneRenderPassDescriptor = view.currentRenderPassDescriptor else {return}
-        let commandBuffer = Engine.CommandQueue.makeCommandBuffer()
-        commandBuffer?.label = "Command Buffer"
-        
-        shadowRenderPass(commandBuffer: commandBuffer!)
-        baseRenderPass(commandBuffer: commandBuffer!)
-        finalRenderPass(view: view, commandBuffer: commandBuffer!)
-
-        
-        
-        commandBuffer?.present(view.currentDrawable!)
-        commandBuffer?.commit()
+        let shadowCommandBuffer = Engine.CommandQueue.makeCommandBuffer()
+        shadowCommandBuffer?.label = "Shadow Command Buffer"
+        SceneManager.doShadowRender(commandBuffer: shadowCommandBuffer!)
+        copyShadowTextureData(commandBuffer: shadowCommandBuffer!)
+        shadowCommandBuffer?.commit()
+        let reflectionsCommandBuffer = Engine.CommandQueue.makeCommandBuffer()
+        reflectionsCommandBuffer?.label = "Reflections Command Buffer"
+        SceneManager.doReflectionRender(commandBuffer: reflectionsCommandBuffer!)
+        reflectionsCommandBuffer?.commit()
+        let baseCommandBuffer = Engine.CommandQueue.makeCommandBuffer()
+        baseCommandBuffer?.label = "Base Command Buffer"
+        baseRenderPass(commandBuffer: baseCommandBuffer!)
+        finalRenderPass(view: view, commandBuffer: baseCommandBuffer!)
+         
+        baseCommandBuffer?.present(view.currentDrawable!, afterMinimumDuration: CFTimeInterval(floatLiteral: Double(0.0001)))
+        baseCommandBuffer?.commit()
     }
 }

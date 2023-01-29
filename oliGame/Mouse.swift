@@ -19,7 +19,6 @@ class Mouse {
     private static var scrollWheelChange: Float = 0.0
 
     public static func SetMouseButtonPressed(button: Int, isOn: Bool){
-        print("button:\(button), isOn:\(isOn)")
         mouseButtonList[button] = isOn
     }
 

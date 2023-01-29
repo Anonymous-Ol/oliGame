@@ -31,6 +31,25 @@ struct RasterizerData{
     
     float3 surfaceTangent;
     float3 surfaceBiTangent;
+    
+    float3 reflectionVector;
+};
+
+struct ReflectionRasterizerData{
+    float4 position  [[position]];
+    float4 color;
+    float2 textureCoordinate;
+    float3 vertexPosition;
+    float totalGameTime;
+    
+    float3 worldPosition;
+    float3 surfaceNormal;
+    float3 toCameraVector;
+    
+    float3 surfaceTangent;
+    float3 surfaceBiTangent;
+    
+    uint   face [[render_target_array_index]];
 };
 
 
@@ -44,7 +63,7 @@ struct SceneConstants{
     float4x4 projectionMatrix;
     float3 cameraPosition;
 };
-struct Material {
+struct Material{
     float4 color;
     bool isLit;
     bool useBaseTexture;
@@ -53,8 +72,9 @@ struct Material {
     float3 ambient;
     float3 diffuse;
     float3 specular;
-    float  shininess;
+    float shininess;
     
+    float reflectivity;
 };
 struct LightData{
     float3 position;
@@ -64,12 +84,35 @@ struct LightData{
     float ambientIntensity;
     float diffuseIntensity;
     float specularIntensity;
-    float4x4 projectionViewMatrix;
+   
+    float3 lookAtPosition;
+    float orthoSize;
+    float near;
+    float far;
 };
 struct SceneLightData{
     float3 phongIntensity;
+};
+struct ShadowData{
+    depth2d_array<float, access::sample> shadowMaps;
+    bool     renderShadows = true;
+    float3   worldPosition;
+    float4x4 shadowViewProjectionMatrix;
+    float    shadowNDotL = 0;
+    int      index;
     
 };
+struct uvReturn {
+    int index;
+    float u;
+    float v;
+};
+
+///Note: UNUSED
+struct ShadowTextureArgumentBuffer{
+    depth2d<float, access::sample> texture [[id(1)]];
+};
+///Note: UNUSED
 struct ShadowRasterizerData{
     float4 position  [[position]];
 };

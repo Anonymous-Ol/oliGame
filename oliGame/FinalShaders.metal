@@ -8,6 +8,7 @@
 #pragma once
 #include <metal_stdlib>
 #include "Shared.metal"
+#include "Lighting.metal"
 using namespace metal;
 
 struct FinalRasterizerData {
@@ -28,6 +29,9 @@ fragment half4 final_fragment_shader(const FinalRasterizerData rd [[stage_in]],
     sampler s;
     float2 textureCoordinate = rd.textureCoordinate;
     textureCoordinate.y = 1 - textureCoordinate.y;
+    
+
+
 
     float4 color = baseTexture.sample(s, textureCoordinate);
     return half4(color);

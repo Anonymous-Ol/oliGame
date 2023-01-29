@@ -10,6 +10,7 @@ using namespace metal;
 #include "Shared.metal"
 #include "Lighting.metal"
 
+///Note: UNUSED
 struct ShadowFragOutput{
     half4 color [[color(0)]];
     //float depth [[depth(any)]];
@@ -17,42 +18,43 @@ struct ShadowFragOutput{
 
 
 
-float rand(int x, int y, int z)
-{
-    int seed = x + y * 57 + z * 241;
-    seed= (seed<< 13) ^ seed;
-    return (( 1.0 - ( (seed * (seed * seed * 15731 + 789221) + 1376312589) & 2147483647) / 1073741824.0f) + 1.0f) / 2.0f;
-}
 
 vertex RasterizerData vertex_shadow(
     VertexIn in [[stage_in]],
     constant ModelConstants &modelConstants [[buffer(1)]],
-    constant LightData *lightDatas [[buffer(2)]],
-    constant int *lightCount [[buffer(3)]])
+    constant LightData &lightData [[buffer(2)]])
 {
     RasterizerData srd;
     
-    float4 worldPosition = float4(in.position, 1) * modelConstants.modelMatrix;
-    float4x4 shadowMVP = Lighting::ortho(-35,35,-35,35,0.1,1000) * Lighting::calculate_lookAt_matrix(float3(0,100,100), float3(0,0,0), float3(0,1,0));
+    float4 worldPosition = modelConstants.modelMatrix * float4(in.position, 1);
+    
+    float4x4 shadowViewMatrix = Lighting::calculate_lookAt_matrix(lightData.position, lightData.lookAtPosition, float3(0,1,0));
+    float4x4 shadowProjectionMatrix = Lighting::ortho(-lightData.orthoSize,lightData.orthoSize,-lightData.orthoSize,lightData.orthoSize,lightData.near,lightData.far);
+    float4x4 biasedLightViewProjectMatrix = shadowProjectionMatrix * shadowViewMatrix;
+    
+    float4x4 shadowMVP = biasedLightViewProjectMatrix;
     
     
-    srd.position = worldPosition * shadowMVP;
-    
+    srd.position =  shadowMVP * worldPosition;
+    //srd.position.z += 100;
     return srd;
 }
 
 vertex RasterizerData instanced_vertex_shadow(
     VertexIn in [[stage_in]],
     constant ModelConstants *multipleModelConstants [[buffer(1)]],
-    constant LightData *lightDatas [[buffer(2)]],
-    constant int *lightCount [[buffer(3)]],
+    constant LightData &lightData [[buffer(2)]],
     uint instanceId [[instance_id]])
 {
     RasterizerData srd;
     ModelConstants modelConstant = multipleModelConstants[instanceId];
     float4 worldPosition = modelConstant.modelMatrix * float4(in.position, 1);
 
-    float4x4 shadowMVP = lightDatas[0].projectionViewMatrix;
+    float4x4 shadowViewMatrix = Lighting::calculate_lookAt_matrix(lightData.position, lightData.lookAtPosition, float3(0,1,0));
+    float4x4 shadowProjectionMatrix = Lighting::ortho(-lightData.orthoSize,lightData.orthoSize,-lightData.orthoSize,lightData.orthoSize,lightData.near,lightData.far);
+    float4x4 biasedLightViewProjectMatrix = shadowProjectionMatrix * shadowViewMatrix;
+    
+    float4x4 shadowMVP = biasedLightViewProjectMatrix;
     srd.position = shadowMVP * worldPosition;
     //srd.position.z = abs(srd.position.z);
     return srd;

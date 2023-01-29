@@ -11,7 +11,8 @@ import MetalKit
 class GameObject: Node{
     var renderPipelineStateType: RenderPipelineStateTypes { return .Basic }
     var shadowRenderPipelineStateType: RenderPipelineStateTypes { return .BasicShadow}
-    var time: Float = 0;
+    var cubeMapRenderPipelineStateType: RenderPipelineStateTypes { return .BasicCubemap}
+    var time: Float = 0
     private var _modelConstants = ModelConstants()
     private var _material: Material? = nil
     private var _baseColorTextureType: TextureTypes = TextureTypes.None
@@ -27,22 +28,39 @@ class GameObject: Node{
         time += deltaTime
         _modelConstants.modelMatrix = self.modelMatrix
         super.update(deltaTime: deltaTime)
-        
     }
+
 }
 
 extension GameObject: Renderable{
+    func doCubeMapRender(renderCommandEncoder: MTLRenderCommandEncoder) {
+        if(!self.preventRender){
+            renderCommandEncoder.setVertexBytes(&_modelConstants, length: ModelConstants.stride, index: 2)
+            renderCommandEncoder.setRenderPipelineState(Graphics.RenderPipelineStates[cubeMapRenderPipelineStateType])
+            renderCommandEncoder.setDepthStencilState(Graphics.DepthStencilStates[.Less])
+            renderCommandEncoder.setFragmentSamplerState(Graphics.SamplerStates[.Linear], index: 0)
+            
+            
+            _mesh.drawCubemapPrimitives(renderCommandEncoder,
+                                        baseColorTextureType: _baseColorTextureType,
+                                        material: _material,
+                                        normalMapTextureType: _normalMapTextureType)
+        }
+    }
+    
     func doRender(renderCommandEncoder: MTLRenderCommandEncoder) {
-        renderCommandEncoder.setVertexBytes(&_modelConstants, length: ModelConstants.stride, index: 2)
-        renderCommandEncoder.setRenderPipelineState(Graphics.RenderPipelineStates[renderPipelineStateType])
-        renderCommandEncoder.setDepthStencilState(Graphics.DepthStencilStates[.Less])
-        renderCommandEncoder.setFragmentSamplerState(Graphics.SamplerStates[.Linear], index: 0)
-        
-        
-        _mesh.drawPrimitives(renderCommandEncoder,
-                             baseColorTextureType: _baseColorTextureType,
-                             material: _material,
-                             normalMapTextureType: _normalMapTextureType)
+        if(!self.preventRender && !self.culled){
+            renderCommandEncoder.setVertexBytes(&_modelConstants, length: ModelConstants.stride, index: 2)
+            renderCommandEncoder.setRenderPipelineState(Graphics.RenderPipelineStates[renderPipelineStateType])
+            renderCommandEncoder.setDepthStencilState(Graphics.DepthStencilStates[.Less])
+            renderCommandEncoder.setFragmentSamplerState(Graphics.SamplerStates[.Linear], index: 0)
+            
+            
+            _mesh.drawPrimitives(renderCommandEncoder,
+                                 baseColorTextureType: _baseColorTextureType,
+                                 material: _material,
+                                 normalMapTextureType: _normalMapTextureType)
+        }
     }
     func doShadowRender(renderCommandEncoder: MTLRenderCommandEncoder){
         renderCommandEncoder.setVertexBytes(&_modelConstants, length: ModelConstants.stride, index: 1)
@@ -52,6 +70,11 @@ extension GameObject: Renderable{
                              baseColorTextureType: _baseColorTextureType,
                              material: _material,
                              normalMapTextureType: _normalMapTextureType)
+    }
+    func doReflectionRender(commandBuffer: MTLCommandBuffer) {
+        self.preventRender = true
+        _mesh.renderReflections(commandBuffer, position: self.getPosition())
+        self.preventRender = false
     }
 }
 ///Material Properties

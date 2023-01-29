@@ -8,7 +8,12 @@
 import MetalKit
 
 class LightManager{
-    private var _lightObjects: [LightObject] = []
+
+    private var _lightObjects:  [LightObject] = []
+    private var  _shadowRenderPassDescriptor: MTLRenderPassDescriptor!
+    private var _shadowRenders: [MTLTexture] = []
+    private var _setUpShadowData: Bool = false
+    private var _combinedShadowTexture: MTLTexture!
     
     func addLightObject(_ lightObject: LightObject){
         self._lightObjects.append(lightObject)
@@ -20,6 +25,32 @@ class LightManager{
         }
         return result
     }
+    func createShadowRenderPassDescriptor(index: Int){
+
+        let shadowDepthTextureDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .depth32Float,
+                                                                                    width: Int(Renderer.ScreenSize.x),
+                                                                                    height: Int(Renderer.ScreenSize.y),
+                                                                                    mipmapped: false)
+        
+
+        
+        shadowDepthTextureDescriptor.storageMode = .private
+        shadowDepthTextureDescriptor.usage = [.renderTarget, .shaderRead]
+        
+        _shadowRenders.insert(Engine.Device.makeTexture(descriptor: shadowDepthTextureDescriptor)!, at: index)
+        
+        
+        self._shadowRenderPassDescriptor = MTLRenderPassDescriptor()
+        
+        
+        self._shadowRenderPassDescriptor.depthAttachment.texture = _shadowRenders[index]
+        self._shadowRenderPassDescriptor.depthAttachment.loadAction =  .clear
+        self._shadowRenderPassDescriptor.depthAttachment.clearDepth = 1.0
+        self._shadowRenderPassDescriptor.depthAttachment.storeAction = .store
+
+
+        
+    }
     func setLightData(_ renderCommandEncoder: MTLRenderCommandEncoder){
         var lightDatas = gatherLightData()
         var lightCount = lightDatas.count
@@ -29,22 +60,63 @@ class LightManager{
         renderCommandEncoder.setFragmentBytes(&lightDatas,
                                               length: LightData.stride(lightDatas.count),
                                               index: 3)
+        renderCommandEncoder.setFragmentTexture(_combinedShadowTexture, index:2)
     }
-    func setShadowLightData(_ renderCommandEncoder: MTLRenderCommandEncoder){
-        var lightDatas = gatherLightData()
-        var lightCount = lightDatas.count
-        renderCommandEncoder.setVertexBytes(&lightDatas, length: LightData.stride(lightDatas.count), index: 2)
-        renderCommandEncoder.setVertexBytes(&lightCount, length: Int32.size, index: 3)
+    func copyShadowTextureData(blitCommandEncoder: MTLBlitCommandEncoder){
+        let finalTextureDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: Preferences.MainDethPixelFomat,
+                                                                              width: _shadowRenders[0].width,
+                                                                              height: _shadowRenders[0].height,
+                                                                              mipmapped: false)
+        finalTextureDescriptor.arrayLength = _shadowRenders.count
+        finalTextureDescriptor.textureType = .type2DArray
+        finalTextureDescriptor.storageMode = .private
+        _combinedShadowTexture = Engine.Device.makeTexture(descriptor: finalTextureDescriptor)!
+        for i in 0..<_shadowRenders.count{
+            blitCommandEncoder.copy(from: _shadowRenders[i], sourceSlice: 0, sourceLevel: 0, to: _combinedShadowTexture, destinationSlice: i, destinationLevel: 0, sliceCount:1, levelCount: 1)
+        }
+    }
+    func passShadowData(renderCommandEncoder: MTLRenderCommandEncoder){
+//        var argumentEncoder: MTLArgumentEncoder = Graphics.Shaders[.FragmentBasic].makeArgumentEncoder(bufferIndex: 6)
+//        var argumentBuffer:  MTLBuffer          = Engine.Device.makeBuffer(length: argumentEncoder.encodedLength, options:[.storageModeManaged])!
+//        for (index, object) in _shadowRenders.enumerated() {
+//            print(argumentEncoder.encodedLength * index)
+//            argumentEncoder.setArgumentBuffer(argumentBuffer, offset: argumentEncoder.encodedLength * index)
+//            argumentEncoder.setTexture(object, index:1)
+//        }
+//        var shadowsCount = _shadowRenders.count
+//        renderCommandEncoder.setFragmentBytes (&shadowsCount , length: Int32.size, index: 5)
+//        renderCommandEncoder.setFragmentBuffer(argumentBuffer, offset: 0, index: 6)
+
+        let shadowTextureCount: CountableRange = 0..<_shadowRenders.count
+        renderCommandEncoder.setFragmentTextures(_shadowRenders, range: shadowTextureCount)
+
+    }
+    func shadowRender(commandBuffer: MTLCommandBuffer){
+        _shadowRenders = []
+        let lightDatas = gatherLightData()
+        for (index, light) in lightDatas.enumerated(){
+            createShadowRenderPassDescriptor(index: index)
+            let renderCommandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: _shadowRenderPassDescriptor)
+            renderCommandEncoder?.label = "Shadow RENDER COMMAND ENCODER"
+            renderCommandEncoder?.pushDebugGroup("Starting Shadow Render")
+            renderCommandEncoder?.setCullMode(.front)
+            var mutatableLight = light
+            renderCommandEncoder?.setVertexBytes(&mutatableLight, length: LightData.stride, index: 2)
+            SceneManager.ShadowRender(renderCommandEncoder: renderCommandEncoder!)
+            renderCommandEncoder?.popDebugGroup()
+            renderCommandEncoder?.endEncoding()
+        }
+        
     }
     static func calculate_lookAt_matrix(position: float3, target: float3, worldUp: float3) -> float4x4
     {
         // 1. Position = known
         // 2. Calculate cameraDirection
-        var zaxis: float3 = normalize(position - target);
+        let zaxis: float3 = normalize(position - target);
         // 3. Get positive right axis vector
-        var xaxis: float3 = normalize(cross(normalize(worldUp), zaxis));
+        let xaxis: float3 = normalize(cross(normalize(worldUp), zaxis));
         // 4. Calculate camera up vector
-        var yaxis: float3 = cross(zaxis, xaxis);
+        let yaxis: float3 = cross(zaxis, xaxis);
 
         // Create translation and rotation matrix
         // In glm we access elements as mat[col][row] due to column-major layout

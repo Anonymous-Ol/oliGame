@@ -27,7 +27,6 @@ class DebugCamera: Camera{
 
         }
         if(Mouse.IsMouseButtonPressed(button: .CENTER)){
-            print(self.getPosition())
             self.moveX(-Mouse.GetDX() * GameTime.DeltaTime * _moveSpeed)
             self.moveY( Mouse.GetDY() * GameTime.DeltaTime * _moveSpeed)
 

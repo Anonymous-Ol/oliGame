@@ -19,23 +19,8 @@ class LightObject: GameObject{
     }
     override func update(deltaTime: Float){
         self.lightData.position = self.getPosition()
-        self.lightData.projectionViewMatrix = simd_float4x4(orthographicProjectionWithLeft: -35,
-                                                               top: 35,
-                                                               right: 35,
-                                                               bottom: -35,
-                                                               near: 0.1,
-                                                               far: 1000) * LightManager.calculate_lookAt_matrix(position: float3(0,100,100), target: float3(0,0,0), worldUp: float3(0,1,0))
-        print("Combined Matrices: ")
-        print(self.lightData.projectionViewMatrix)
-        print("Projection Matrix: ")
-        print(simd_float4x4(orthographicProjectionWithLeft: -35,
-                            top: 35,
-                            right: 35,
-                            bottom: -35,
-                            near: 0.1,
-                            far: 1000))
-        print("View Matrix: ")
-        print(LightManager.calculate_lookAt_matrix(position: float3(0,100,100), target: float3(0,0,0), worldUp: float3(0,1,0)))
+
+
         super.update(deltaTime: deltaTime)
 
     }
@@ -45,6 +30,7 @@ class LightObject: GameObject{
     override func shadowRender(renderCommandEncoder: MTLRenderCommandEncoder){
         super.shadowRender(renderCommandEncoder: renderCommandEncoder)
     }
+
 }
 extension LightObject{
     

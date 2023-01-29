@@ -50,6 +50,19 @@ class InstancedGameObject: Node{
     
 }
 extension InstancedGameObject: Renderable{
+    func doCubeMapRender(renderCommandEncoder: MTLRenderCommandEncoder) {
+        renderCommandEncoder.setRenderPipelineState(Graphics.RenderPipelineStates[.InstancedCubemap])
+        
+        renderCommandEncoder.setDepthStencilState(Graphics.DepthStencilStates[.Less])
+        
+        renderCommandEncoder.setVertexBuffer(_modelConstantsBuffer, offset: 0, index: 2)
+        
+        renderCommandEncoder.setFragmentBytes(&_material, length: Material.stride, index: 1)
+        
+        _mesh.drawCubemapPrimitives(renderCommandEncoder)
+    }
+    
+    
     func doRender(renderCommandEncoder: MTLRenderCommandEncoder){
         renderCommandEncoder.setRenderPipelineState(Graphics.RenderPipelineStates[.Instanced])
         
@@ -76,6 +89,9 @@ extension InstancedGameObject: Renderable{
         
         //Draw the mesh
         _mesh.drawPrimitives(renderCommandEncoder)
+    }
+    func doReflectionRender(commandBuffer: MTLCommandBuffer) {
+
     }
 
 }

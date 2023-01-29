@@ -16,7 +16,6 @@ class Pointer: GameObject{
     }
     override func doUpdate(){
         self.rotateZ(-atan2(Mouse.GetMouseViewportPosition().x - getPositionX() + camera.getPositionX(),                            Mouse.GetMouseViewportPosition().y - getPositionX() + camera.getPositionY()))
-        print(Mouse.GetMouseViewportPosition())
     }
 
 }
