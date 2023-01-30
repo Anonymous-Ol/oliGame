@@ -19,6 +19,7 @@ class ForestScene: Scene{
         addLight(sun2)
         
         let skySphere = SkySphere(skySphereTextureType: .Clouds)
+        skySphere.cullable = false
         addChild(skySphere)
     
         firstPersonCamera.setPosition(0,1,0)
@@ -28,6 +29,7 @@ class ForestScene: Scene{
         
         let terrain = GameObject(name:"terrain", meshType: .GroundGrass)
         terrain.setScale(300)
+        terrain.cullable = false
         addChild(terrain)
         
         
@@ -42,6 +44,7 @@ class ForestScene: Scene{
         
         let reflectiveSphere = GameObject(name:"Reflective Sphere", meshType: .Sphere)
         reflectiveSphere.setPositionY(1)
+        reflectiveSphere.setScale(0.5)
         addChild(reflectiveSphere)
         
 

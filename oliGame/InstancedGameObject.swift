@@ -13,6 +13,7 @@ class InstancedGameObject: Node{
     
     internal var _nodes: [Node] = []
     private var _modelConstantsBuffer: MTLBuffer!
+
     
     init(name: String, meshType: MeshTypes, instanceCount: Int){
         super.init(name: name)
@@ -37,11 +38,18 @@ class InstancedGameObject: Node{
     }
     override func update(deltaTime: Float){
         var pointer = _modelConstantsBuffer.contents().bindMemory(to: ModelConstants.self, capacity: _nodes.count)
-        
+        camFrustum = SceneManager.currentScene._cameraManager.currentCamera.cameraFrustum
         for node in _nodes{
-            pointer.pointee.modelMatrix = node.modelMatrix
-            
-            pointer = pointer.advanced(by: 1)
+            if(doCullTest(p: node.getPosition(), radius: node.radius)){
+                node.culled = true
+            }else{
+                node.culled = false
+            }
+            if(!node.culled){
+                pointer.pointee.modelMatrix = node.modelMatrix
+                
+                pointer = pointer.advanced(by: 1)
+            }
         }
         
         super.update(deltaTime: deltaTime)
@@ -92,6 +100,13 @@ extension InstancedGameObject: Renderable{
     }
     func doReflectionRender(commandBuffer: MTLCommandBuffer) {
 
+    }
+    func doCullTest(p: float3, radius: Float) -> Bool{
+        if(!camFrustum.sphereInFrustum(p: p, radius: radius)){
+            return true
+        }else{
+            return false
+        }
     }
 
 }

@@ -27,6 +27,8 @@ class GameObject: Node{
     override func update(deltaTime: Float){
         time += deltaTime
         _modelConstants.modelMatrix = self.modelMatrix
+        camFrustum = SceneManager.currentScene._cameraManager.currentCamera.cameraFrustum
+        doCullTest()
         super.update(deltaTime: deltaTime)
     }
 
@@ -49,7 +51,7 @@ extension GameObject: Renderable{
     }
     
     func doRender(renderCommandEncoder: MTLRenderCommandEncoder) {
-        if(!self.preventRender && !self.culled){
+        if(!self.preventRender && !self.culled || !self.cullable){
             renderCommandEncoder.setVertexBytes(&_modelConstants, length: ModelConstants.stride, index: 2)
             renderCommandEncoder.setRenderPipelineState(Graphics.RenderPipelineStates[renderPipelineStateType])
             renderCommandEncoder.setDepthStencilState(Graphics.DepthStencilStates[.Less])
@@ -60,6 +62,8 @@ extension GameObject: Renderable{
                                  baseColorTextureType: _baseColorTextureType,
                                  material: _material,
                                  normalMapTextureType: _normalMapTextureType)
+        }else{
+            print(self.getName())
         }
     }
     func doShadowRender(renderCommandEncoder: MTLRenderCommandEncoder){
@@ -75,6 +79,13 @@ extension GameObject: Renderable{
         self.preventRender = true
         _mesh.renderReflections(commandBuffer, position: self.getPosition())
         self.preventRender = false
+    }
+    func doCullTest(){
+        if(!camFrustum.sphereInFrustum(p: self.getPosition(), radius: self.radius)){
+            culled = true
+        }else{
+            culled = false
+        }
     }
 }
 ///Material Properties

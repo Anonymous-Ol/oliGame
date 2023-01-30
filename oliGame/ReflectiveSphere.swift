@@ -8,6 +8,7 @@
 import MetalKit
 
 class ReflectiveSphere: GameObject{
+
     init(){
         super.init(name: "ReflectiveSphere", meshType: .Sphere)
     }

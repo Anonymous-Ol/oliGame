@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		A202199A296B97A200E4FB12 /* ReflectionSkySphereShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = A2021999296B97A200E4FB12 /* ReflectionSkySphereShaders.metal */; };
-		A225921829610787008ED725 /* CubeMapCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = A225921729610787008ED725 /* CubeMapCamera.swift */; };
 		A26770DE29381C8D008DEB1D /* Suzannes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26770DD29381C8D008DEB1D /* Suzannes.swift */; };
 		A26770E029381F53008DEB1D /* TheSuzannes.obj in Resources */ = {isa = PBXBuildFile; fileRef = A26770DF29381F53008DEB1D /* TheSuzannes.obj */; };
 		A26770E229381F5E008DEB1D /* TheSuzannes.mtl in Resources */ = {isa = PBXBuildFile; fileRef = A26770E129381F5D008DEB1D /* TheSuzannes.mtl */; };
@@ -47,6 +46,7 @@
 		A29FECB7293164FF00AA9534 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A29FECB5293164FF00AA9534 /* Main.storyboard */; };
 		A29FECBF293165A200AA9534 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A29FECBE293165A200AA9534 /* GameView.swift */; };
 		A29FECC12931733B00AA9534 /* BasicShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = A29FECC02931733B00AA9534 /* BasicShaders.metal */; };
+		A2A45F2629886812001ABD73 /* FrustumStuff.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A45F2529886812001ABD73 /* FrustumStuff.swift */; };
 		A2A7E6DF2970F02500B20A89 /* tree_pineSmallA.mtl in Resources */ = {isa = PBXBuildFile; fileRef = A2A7E6B32970F02100B20A89 /* tree_pineSmallA.mtl */; };
 		A2A7E6E02970F02500B20A89 /* tree_pineTallA.obj in Resources */ = {isa = PBXBuildFile; fileRef = A2A7E6B42970F02100B20A89 /* tree_pineTallA.obj */; };
 		A2A7E6E12970F02500B20A89 /* tree_pineGroundB.obj in Resources */ = {isa = PBXBuildFile; fileRef = A2A7E6B52970F02100B20A89 /* tree_pineGroundB.obj */; };
@@ -153,7 +153,6 @@
 /* Begin PBXFileReference section */
 		A2021999296B97A200E4FB12 /* ReflectionSkySphereShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ReflectionSkySphereShaders.metal; sourceTree = "<group>"; };
 		A21614DB2968CE4F00F051C1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		A225921729610787008ED725 /* CubeMapCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubeMapCamera.swift; sourceTree = "<group>"; };
 		A26770DD29381C8D008DEB1D /* Suzannes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Suzannes.swift; sourceTree = "<group>"; };
 		A26770DF29381F53008DEB1D /* TheSuzannes.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TheSuzannes.obj; sourceTree = "<group>"; };
 		A26770E129381F5D008DEB1D /* TheSuzannes.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TheSuzannes.mtl; sourceTree = "<group>"; };
@@ -194,6 +193,7 @@
 		A29FECB8293164FF00AA9534 /* oliGame.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = oliGame.entitlements; sourceTree = "<group>"; };
 		A29FECBE293165A200AA9534 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GameView.swift; path = Assets.xcassets/GameView.swift; sourceTree = "<group>"; };
 		A29FECC02931733B00AA9534 /* BasicShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = BasicShaders.metal; sourceTree = "<group>"; };
+		A2A45F2529886812001ABD73 /* FrustumStuff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrustumStuff.swift; sourceTree = "<group>"; };
 		A2A7E6B32970F02100B20A89 /* tree_pineSmallA.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tree_pineSmallA.mtl; sourceTree = "<group>"; };
 		A2A7E6B42970F02100B20A89 /* tree_pineTallA.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tree_pineTallA.obj; sourceTree = "<group>"; };
 		A2A7E6B52970F02100B20A89 /* tree_pineGroundB.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tree_pineGroundB.obj; sourceTree = "<group>"; };
@@ -402,8 +402,8 @@
 				A29731392932E61C00BA70D9 /* CameraManager.swift */,
 				A27872682932E1A700D93839 /* Camera.swift */,
 				A278726A2932E28500D93839 /* DebugCamera.swift */,
-				A225921729610787008ED725 /* CubeMapCamera.swift */,
 				A29FC0362972FE4D00359052 /* FirstPersonCamera.swift */,
+				A2A45F2529886812001ABD73 /* FrustumStuff.swift */,
 				A2B5CA242932441000088B5F /* Engine.swift */,
 				A2A812502933C2BD00DB6AE7 /* Graphics.swift */,
 				A2A812522933C39300DB6AE7 /* Assets.swift */,
@@ -721,7 +721,6 @@
 				A2A8127329343BCD00DB6AE7 /* Sun.swift in Sources */,
 				A2A81263293402CC00DB6AE7 /* TextureLibrary.swift in Sources */,
 				A2A8124B29339CCB00DB6AE7 /* CubeCollection.swift in Sources */,
-				A225921829610787008ED725 /* CubeMapCamera.swift in Sources */,
 				A2A812492933932A00DB6AE7 /* InstancedGameObject.swift in Sources */,
 				A2A812512933C2BD00DB6AE7 /* Graphics.swift in Sources */,
 				A2A812532933C39300DB6AE7 /* Assets.swift in Sources */,
@@ -743,6 +742,7 @@
 				A29DE2122932CA6B002EB0B0 /* Mouse.swift in Sources */,
 				A278726B2932E28500D93839 /* DebugCamera.swift in Sources */,
 				A26770F829398357008DEB1D /* SkySphere.swift in Sources */,
+				A2A45F2629886812001ABD73 /* FrustumStuff.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

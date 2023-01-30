@@ -264,33 +264,3 @@ class Scene: Node{
         }
 }
 
-//func switchToFace(faceIndex: Int) {
-//    switch (faceIndex) {
-//    case 0:
-//        _reflectionPitch = 0
-//        _reflectionYaw = -1.5708
-//        break
-//    case 1:
-//        _reflectionPitch = 0
-//        _reflectionYaw = 1.5708
-//        break
-//    case 2:
-//        _reflectionPitch = Float(-90).toRadians
-//        _reflectionYaw = Float(180).toRadians
-//        break
-//    case 3:
-//        _reflectionPitch = Float(90).toRadians
-//        _reflectionYaw = Float(180).toRadians
-//        break
-//    case 4:
-//        _reflectionPitch = Float(0).toRadians
-//        _reflectionYaw = Float(180).toRadians
-//        break
-//    case 5:
-//        _reflectionPitch = Float(0).toRadians
-//        _reflectionYaw = Float(0).toRadians
-//        break
-//    default:
-//        break
-//    }
-//    }
