@@ -47,7 +47,6 @@ public:
             LightData lightData = lightDatas[i];
             
             float3 unitToLightVector = normalize(lightData.position - worldPosition);
-            float3 unitReflectionVector = normalize(reflect(-unitToLightVector, unitNormal));
             
             //Ambient
             float3 ambientness = material.ambient * lightData.ambientIntensity;
@@ -74,7 +73,7 @@ public:
             if(sd.renderShadows) shadowFactor = 1 - Lighting::shadowCompare(sd);
             
             //Final Diffuse
-            float3 diffuseColor = clamp(shadowFactor * diffuseness * correctedNDotL * lightData.color * lightData.brightness, 0.0, 1.0);
+            float3 diffuseColor = clamp(shadowFactor *diffuseness * correctedNDotL * lightData.color * lightData.brightness, 0.0, 1.0);
             totalDiffuse += diffuseColor;
             
             if(nDotL <= 0 || shadowFactor > 0){

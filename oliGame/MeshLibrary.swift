@@ -18,6 +18,7 @@ enum MeshTypes{
     case Chest
     case Quad
     case SkySphere
+    case RegSphere
     
     //Terrain
     case GroundGrass
@@ -58,6 +59,8 @@ class MeshLibrary: Library<MeshTypes, Mesh>{
         _library.updateValue(Mesh(modelName: "flower_redA"), forKey: .flower_red)
         _library.updateValue(Mesh(modelName: "flower_purpleA"), forKey: .flower_purple)
         _library.updateValue(Mesh(modelName: "flower_yellowA"), forKey: .flower_yellow)
+        
+        _library.updateValue(Mesh(modelName: "untitled"), forKey: .RegSphere)
         
         
 
@@ -165,7 +168,7 @@ class Mesh{
     
     func addVertex(position: float3,
                    color:float4 = float4(1,0,1,1),
-                   textureCoordinate: float2 = float2(0),
+                   textureCoordinate: float2 = float2(repeating: 0),
                    normal: float3 = float3(0,1,0),
                    tangent: float3 = float3(1,1,1),
                    bitangent: float3 = float3(1,1,1)){
@@ -181,7 +184,8 @@ class Mesh{
     func drawPrimitives(_ renderCommandEncoder: MTLRenderCommandEncoder,
                         baseColorTextureType: TextureTypes = .None,
                         material: Material? = nil,
-                        normalMapTextureType: TextureTypes = .None){
+                        normalMapTextureType: TextureTypes = .None,
+                        cubeMapTexture: MTLTexture? = nil){
         if(_vertexBuffer != nil){
             renderCommandEncoder.setVertexBuffer(_vertexBuffer, offset: 0, index: 0)
 
@@ -189,7 +193,8 @@ class Mesh{
                 for  submesh in _submeshes{
                     submesh.applyTextures(renderCommandEncoder: renderCommandEncoder,
                                           customBaseColorTextureType: baseColorTextureType,
-                                          customNormalMapTextureType: normalMapTextureType)
+                                          customNormalMapTextureType: normalMapTextureType,
+                                          cubeMapTexture: cubeMapTexture)
 
                     submesh.applyMaterials(renderCommandEncoder: renderCommandEncoder, customMaterial: material)
                     renderCommandEncoder.drawIndexedPrimitives(type: submesh.primitiveType,
@@ -210,19 +215,31 @@ class Mesh{
     func drawCubemapPrimitives(_ renderCommandEncoder: MTLRenderCommandEncoder,
                         baseColorTextureType: TextureTypes = .None,
                         material: Material? = nil,
-                        normalMapTextureType: TextureTypes = .None){
+                        normalMapTextureType: TextureTypes = .None,
+                               cubeMapTexture: MTLTexture? = nil){
         if(_vertexBuffer != nil){
             renderCommandEncoder.setVertexBuffer(_vertexBuffer, offset: 0, index: 0)
+            var isReflective = false
+            for _submesh in _submeshes {
+                if(_submesh._material.reflectivity > 0){
+                    
+                    isReflective = true
+                }
+                if(material?.reflectivity ?? 0 > 0){
+                    isReflective = true
+                }
+            }
 
-            if(_submeshes.count > 0){
+            if(_submeshes.count > 0 && !isReflective){
                 
                 for  submesh in _submeshes{
                     submesh.applyMaterials(renderCommandEncoder: renderCommandEncoder, customMaterial: material)
                     submesh.applyTextures(renderCommandEncoder: renderCommandEncoder,
                                           customBaseColorTextureType: baseColorTextureType,
-                                          customNormalMapTextureType: normalMapTextureType)
+                                          customNormalMapTextureType: normalMapTextureType,
+                                          cubeMapTexture: cubeMapTexture)
 
-                    for i in 0...5{
+                    for i in 0...6*ReflectionVariables.reflectionPositions.count - 1{
                         var iInt32: Int32 = Int32(i)
                         renderCommandEncoder.setVertexBytes(&iInt32, length: Int32.stride, index: 3)
                         renderCommandEncoder.drawIndexedPrimitives(type: submesh.primitiveType,
@@ -234,7 +251,7 @@ class Mesh{
                     }
                 }
             }else{
-                for i in 0...5{
+                for i in 0...6*ReflectionVariables.reflectionPositions.count - 1{
                     var iInt32: Int32 = Int32(i)
                     renderCommandEncoder.setVertexBytes(&iInt32, length: Int32.stride, index: 3)
                     renderCommandEncoder.drawPrimitives(type: .triangle,
@@ -245,15 +262,26 @@ class Mesh{
             }
         }
     }
-    func renderReflections(_ commandBuffer: MTLCommandBuffer,
-                           material: Material? = nil,
-                           position: float3){
-            if(_submeshes.count > 0 && _vertexBuffer != nil){
-                for submesh in _submeshes{
-                    submesh.renderReflections(commandBuffer, customMaterial: material, position: position)
+    func renderReflections(material: Material? = nil,
+                           position: float3) -> Int!{
+            if(_vertexBuffer != nil){
+                for _submesh in _submeshes {
+                    if(_submesh._material.reflectivity > 0){
+                        
+                    }else{
+                        return nil
+                    }
+                    if(material?.reflectivity ?? 1 > 0){
+                        
+                    }else{
+                        return nil
+                    }
                 }
+                ReflectionVariables.currentReflectionIndex += 1
+                ReflectionVariables.reflectionPositions.append(position)
+                return Int(ReflectionVariables.currentReflectionIndex - 1)
             }
-        
+        return nil
     }
 
     
@@ -279,7 +307,7 @@ class Submesh{
     private var _baseColorTExture: MTLTexture!
     private var _normalMapTexture: MTLTexture!
     
-    private var _material = Material()
+            var _material = Material()
     
     private var _trueReflections: MTLTexture!
     
@@ -340,18 +368,22 @@ class Submesh{
     }
     func applyTextures(renderCommandEncoder: MTLRenderCommandEncoder,
                        customBaseColorTextureType: TextureTypes,
-                       customNormalMapTextureType:TextureTypes) {
+                       customNormalMapTextureType:TextureTypes,
+                       cubeMapTexture: MTLTexture?) {
         _material.useBaseTexture = customBaseColorTextureType != .None || _baseColorTExture != nil
         _material.useNormalMapTexture = customNormalMapTextureType != .None || _normalMapTexture != nil
         
-        if(_trueReflections != nil){
-            renderCommandEncoder.setFragmentTexture(_trueReflections, index: 3)
-        }
         if(_material.useBaseTexture || _material.useNormalMapTexture){
             renderCommandEncoder.setFragmentSamplerState(Graphics.SamplerStates[.Linear], index:0)
         }
         
         renderCommandEncoder.setFragmentSamplerState(Graphics.SamplerStates[.Linear], index: 0)
+        
+        if(cubeMapTexture != nil){
+            renderCommandEncoder.setFragmentTexture(cubeMapTexture, index: 4)
+        }else{
+            renderCommandEncoder.setFragmentTexture(nil, index: 4)
+        }
         let baseColorTex = customBaseColorTextureType == .None ? _baseColorTExture : Assets.Textures[customBaseColorTextureType]
         if(baseColorTex != nil){
             renderCommandEncoder.setFragmentTexture(baseColorTex, index: 0)
@@ -367,18 +399,9 @@ class Submesh{
         var mat = customMaterial == nil ? _material : customMaterial
         renderCommandEncoder.setFragmentBytes(&mat, length: Material.stride, index: 1)
     }
-    func renderReflections(_ commandBuffer: MTLCommandBuffer,
-                           customMaterial: Material?,
-                           position: float3){
-        let mat = customMaterial == nil ? _material : customMaterial
-        if(mat?.reflectivity ?? 0 > 0){
-            _trueReflections = SceneManager.ReflectionRender(commandBuffer: commandBuffer, position: position)
-        }else{
-            _trueReflections = nil
-        }
-    }
 
 }
+//To be removed
 
 class Triangle_CustomMesh: Mesh{
     override func createMesh(){

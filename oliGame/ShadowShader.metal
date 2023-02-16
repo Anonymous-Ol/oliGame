@@ -19,12 +19,13 @@ struct ShadowFragOutput{
 
 
 
-vertex RasterizerData vertex_shadow(
-    VertexIn in [[stage_in]],
+vertex ShadowRasterizerData vertex_shadow(
+    VertexIn in                             [[stage_in ]],
     constant ModelConstants &modelConstants [[buffer(1)]],
-    constant LightData &lightData [[buffer(2)]])
+    constant LightData      &lightData      [[buffer(2)]],
+    constant uint           &face           [[buffer(3)]])
 {
-    RasterizerData srd;
+    ShadowRasterizerData srd;
     
     float4 worldPosition = modelConstants.modelMatrix * float4(in.position, 1);
     
@@ -36,17 +37,19 @@ vertex RasterizerData vertex_shadow(
     
     
     srd.position =  shadowMVP * worldPosition;
+    srd.face     =  face;
     //srd.position.z += 100;
     return srd;
 }
 
-vertex RasterizerData instanced_vertex_shadow(
-    VertexIn in [[stage_in]],
-    constant ModelConstants *multipleModelConstants [[buffer(1)]],
-    constant LightData &lightData [[buffer(2)]],
-    uint instanceId [[instance_id]])
+vertex ShadowRasterizerData instanced_vertex_shadow(
+             VertexIn        in                     [[ stage_in  ]],
+    constant ModelConstants *multipleModelConstants [[ buffer(1) ]],
+    constant LightData      &lightData              [[ buffer(2) ]],
+    constant uint           &face                   [[ buffer(3) ]],
+             uint            instanceId             [[instance_id]])
 {
-    RasterizerData srd;
+    ShadowRasterizerData srd;
     ModelConstants modelConstant = multipleModelConstants[instanceId];
     float4 worldPosition = modelConstant.modelMatrix * float4(in.position, 1);
 
@@ -55,7 +58,9 @@ vertex RasterizerData instanced_vertex_shadow(
     float4x4 biasedLightViewProjectMatrix = shadowProjectionMatrix * shadowViewMatrix;
     
     float4x4 shadowMVP = biasedLightViewProjectMatrix;
+    
     srd.position = shadowMVP * worldPosition;
+    srd.face     = face;
     //srd.position.z = abs(srd.position.z);
     return srd;
 }

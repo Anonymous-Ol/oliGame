@@ -17,6 +17,7 @@ class LightManager{
     
     func addLightObject(_ lightObject: LightObject){
         self._lightObjects.append(lightObject)
+        createShadowRenderPassDescriptor(index: self._lightObjects.count)
     }
     private func gatherLightData()->[LightData]{
         var result: [LightData] = []
@@ -35,18 +36,22 @@ class LightManager{
 
         
         shadowDepthTextureDescriptor.storageMode = .private
+        shadowDepthTextureDescriptor.textureType = .type2DArray
+        shadowDepthTextureDescriptor.arrayLength = index
         shadowDepthTextureDescriptor.usage = [.renderTarget, .shaderRead]
         
-        _shadowRenders.insert(Engine.Device.makeTexture(descriptor: shadowDepthTextureDescriptor)!, at: index)
+        _combinedShadowTexture = Engine.Device.makeTexture(descriptor: shadowDepthTextureDescriptor)!
         
         
         self._shadowRenderPassDescriptor = MTLRenderPassDescriptor()
         
-        
-        self._shadowRenderPassDescriptor.depthAttachment.texture = _shadowRenders[index]
+        self._shadowRenderPassDescriptor.renderTargetArrayLength = index
+
+        self._shadowRenderPassDescriptor.depthAttachment.texture = _combinedShadowTexture
         self._shadowRenderPassDescriptor.depthAttachment.loadAction =  .clear
         self._shadowRenderPassDescriptor.depthAttachment.clearDepth = 1.0
         self._shadowRenderPassDescriptor.depthAttachment.storeAction = .store
+
 
 
         
@@ -61,6 +66,12 @@ class LightManager{
                                               length: LightData.stride(lightDatas.count),
                                               index: 3)
         renderCommandEncoder.setFragmentTexture(_combinedShadowTexture, index:2)
+        if(Assets.Textures[.ReflectionRender] != nil){
+            renderCommandEncoder.setFragmentTexture(Assets.Textures[.ReflectionRender], index: 3)
+        }else{
+            renderCommandEncoder.setFragmentTexture(nil, index: 3)
+        }
+
     }
     func copyShadowTextureData(blitCommandEncoder: MTLBlitCommandEncoder){
         let finalTextureDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: Preferences.MainDethPixelFomat,
@@ -76,16 +87,7 @@ class LightManager{
         }
     }
     func passShadowData(renderCommandEncoder: MTLRenderCommandEncoder){
-//        var argumentEncoder: MTLArgumentEncoder = Graphics.Shaders[.FragmentBasic].makeArgumentEncoder(bufferIndex: 6)
-//        var argumentBuffer:  MTLBuffer          = Engine.Device.makeBuffer(length: argumentEncoder.encodedLength, options:[.storageModeManaged])!
-//        for (index, object) in _shadowRenders.enumerated() {
-//            print(argumentEncoder.encodedLength * index)
-//            argumentEncoder.setArgumentBuffer(argumentBuffer, offset: argumentEncoder.encodedLength * index)
-//            argumentEncoder.setTexture(object, index:1)
-//        }
-//        var shadowsCount = _shadowRenders.count
-//        renderCommandEncoder.setFragmentBytes (&shadowsCount , length: Int32.size, index: 5)
-//        renderCommandEncoder.setFragmentBuffer(argumentBuffer, offset: 0, index: 6)
+
 
         let shadowTextureCount: CountableRange = 0..<_shadowRenders.count
         renderCommandEncoder.setFragmentTextures(_shadowRenders, range: shadowTextureCount)
@@ -94,18 +96,19 @@ class LightManager{
     func shadowRender(commandBuffer: MTLCommandBuffer){
         _shadowRenders = []
         let lightDatas = gatherLightData()
+        let renderCommandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: _shadowRenderPassDescriptor)
+        renderCommandEncoder?.label = "Shadow RENDER COMMAND ENCODER"
+        renderCommandEncoder?.pushDebugGroup("Starting Shadow Render")
+        renderCommandEncoder?.setCullMode(.front)
         for (index, light) in lightDatas.enumerated(){
-            createShadowRenderPassDescriptor(index: index)
-            let renderCommandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: _shadowRenderPassDescriptor)
-            renderCommandEncoder?.label = "Shadow RENDER COMMAND ENCODER"
-            renderCommandEncoder?.pushDebugGroup("Starting Shadow Render")
-            renderCommandEncoder?.setCullMode(.front)
             var mutatableLight = light
+            var mutatableIndex = index
+            renderCommandEncoder?.setVertexBytes(&mutatableIndex, length: uint.size,        index: 3)
             renderCommandEncoder?.setVertexBytes(&mutatableLight, length: LightData.stride, index: 2)
             SceneManager.ShadowRender(renderCommandEncoder: renderCommandEncoder!)
-            renderCommandEncoder?.popDebugGroup()
-            renderCommandEncoder?.endEncoding()
         }
+        renderCommandEncoder?.popDebugGroup()
+        renderCommandEncoder?.endEncoding()
         
     }
     static func calculate_lookAt_matrix(position: float3, target: float3, worldUp: float3) -> float4x4

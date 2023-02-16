@@ -17,7 +17,10 @@ class GameObject: Node{
     private var _material: Material? = nil
     private var _baseColorTextureType: TextureTypes = TextureTypes.None
     private var _normalMapTextureType: TextureTypes = TextureTypes.None
+            var  cubeMapTexture: MTLTexture! = nil
     private var _mesh: Mesh!
+    private var _reflectionIndex: Int! = nil
+    private var _usePreRenderedReflections: Bool = false
     
     init(name: String, meshType: MeshTypes){
         super.init(name: name)
@@ -38,7 +41,10 @@ extension GameObject: Renderable{
     func doCubeMapRender(renderCommandEncoder: MTLRenderCommandEncoder) {
         if(!self.preventRender){
             renderCommandEncoder.setVertexBytes(&_modelConstants, length: ModelConstants.stride, index: 2)
-            renderCommandEncoder.setRenderPipelineState(Graphics.RenderPipelineStates[cubeMapRenderPipelineStateType])
+            if(Renderer.currnetPipelineState != cubeMapRenderPipelineStateType){
+                renderCommandEncoder.setRenderPipelineState(Graphics.RenderPipelineStates[cubeMapRenderPipelineStateType])
+                Renderer.currnetPipelineState = cubeMapRenderPipelineStateType
+            }
             renderCommandEncoder.setDepthStencilState(Graphics.DepthStencilStates[.Less])
             renderCommandEncoder.setFragmentSamplerState(Graphics.SamplerStates[.Linear], index: 0)
             
@@ -53,31 +59,42 @@ extension GameObject: Renderable{
     func doRender(renderCommandEncoder: MTLRenderCommandEncoder) {
         if(!self.preventRender && !self.culled || !self.cullable){
             renderCommandEncoder.setVertexBytes(&_modelConstants, length: ModelConstants.stride, index: 2)
-            renderCommandEncoder.setRenderPipelineState(Graphics.RenderPipelineStates[renderPipelineStateType])
+            if(Renderer.currnetPipelineState != renderPipelineStateType){
+                renderCommandEncoder.setRenderPipelineState(Graphics.RenderPipelineStates[renderPipelineStateType])
+                Renderer.currnetPipelineState = renderPipelineStateType
+            }
             renderCommandEncoder.setDepthStencilState(Graphics.DepthStencilStates[.Less])
             renderCommandEncoder.setFragmentSamplerState(Graphics.SamplerStates[.Linear], index: 0)
-            
-            
+            if(_reflectionIndex == nil){
+                _reflectionIndex = 0
+            }else{
+                _reflectionIndex += 1
+            }
+            renderCommandEncoder.setFragmentBytes(&_reflectionIndex, length: Int32.stride, index: 5)
+            renderCommandEncoder.setFragmentBytes(&_usePreRenderedReflections, length: Bool.stride, index: 6)
             _mesh.drawPrimitives(renderCommandEncoder,
                                  baseColorTextureType: _baseColorTextureType,
                                  material: _material,
-                                 normalMapTextureType: _normalMapTextureType)
-        }else{
-            print(self.getName())
+                                 normalMapTextureType: _normalMapTextureType,
+                                 cubeMapTexture: cubeMapTexture)
+            _reflectionIndex = nil
         }
     }
     func doShadowRender(renderCommandEncoder: MTLRenderCommandEncoder){
         renderCommandEncoder.setVertexBytes(&_modelConstants, length: ModelConstants.stride, index: 1)
-        renderCommandEncoder.setRenderPipelineState(Graphics.RenderPipelineStates[shadowRenderPipelineStateType])
+        if(Renderer.currnetPipelineState != shadowRenderPipelineStateType){
+            renderCommandEncoder.setRenderPipelineState(Graphics.RenderPipelineStates[shadowRenderPipelineStateType])
+            Renderer.currnetPipelineState = shadowRenderPipelineStateType
+        }
         renderCommandEncoder.setDepthStencilState(Graphics.DepthStencilStates[.Less])
         _mesh.drawPrimitives(renderCommandEncoder,
                              baseColorTextureType: _baseColorTextureType,
                              material: _material,
                              normalMapTextureType: _normalMapTextureType)
     }
-    func doReflectionRender(commandBuffer: MTLCommandBuffer) {
+    func doReflectionRender() {
         self.preventRender = true
-        _mesh.renderReflections(commandBuffer, position: self.getPosition())
+        _reflectionIndex = _mesh.renderReflections(position: self.getPosition())
         self.preventRender = false
     }
     func doCullTest(){
@@ -100,6 +117,9 @@ extension GameObject {
     }
     public func useMaterial(_ material: Material){
         _material = material
+    }
+    public func usePredeterminedCubeMap(_ trueOrFalse: Bool){
+        _usePreRenderedReflections = trueOrFalse
     }
 
     

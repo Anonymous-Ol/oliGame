@@ -41,11 +41,21 @@ class ForestScene: Scene{
     
         let trees = Trees(treeACount: 200, treeBCount: 200, treeCCount: 200)
         addChild(trees)
+//
+//        let reflectiveSphere = GameObject(name:"Reflective Sphere", meshType: .Sphere)
+//        reflectiveSphere.setPositionY(1)
+//        addChild(reflectiveSphere)
+//
+//        let reflectiveSphere2 = GameObject(name:"Reflective Sphere 2", meshType: .Sphere)
+//        reflectiveSphere2.setPositionY(7)
+//        addChild(reflectiveSphere2)
+//
+//        let reflectiveSpheres = Sphere()
+//        addChild(reflectiveSpheres)
         
-        let reflectiveSphere = GameObject(name:"Reflective Sphere", meshType: .Sphere)
-        reflectiveSphere.setPositionY(1)
-        reflectiveSphere.setScale(0.5)
-        addChild(reflectiveSphere)
+        let reflectiveSphereStatic = StaticSphere()
+        addChild(reflectiveSphereStatic)
+
         
 
 

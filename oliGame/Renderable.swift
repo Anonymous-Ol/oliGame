@@ -10,6 +10,6 @@ import MetalKit
 protocol Renderable{
     func doRender(renderCommandEncoder: MTLRenderCommandEncoder)
     func doShadowRender(renderCommandEncoder: MTLRenderCommandEncoder)
-    func doReflectionRender(commandBuffer: MTLCommandBuffer)
+    func doReflectionRender()
     func doCubeMapRender(renderCommandEncoder: MTLRenderCommandEncoder)
 }

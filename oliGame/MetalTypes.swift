@@ -74,6 +74,7 @@ struct SceneConstants: sizeable {
     var skyViewMatrix = matrix_identity_float4x4
     var projectionMatrix = matrix_identity_float4x4
     var cameraPosition: float3 = float3(0,0,0)
+    var lookAtPosition: float3 = float3(0,0,0)
 }
 struct Material: sizeable{
     var color = float4(0.8,0.8,0.8,1.0)

@@ -80,6 +80,8 @@ class basicShadowRenderPipelineState: RenderPipelineState{
         
         renderPipelineDescriptor.vertexDescriptor = Graphics.VertexDescriptors[.Basic]
         
+        renderPipelineDescriptor.inputPrimitiveTopology = .triangle
+        
         super.init(renderPipelineDescriptor)
     }
 }
@@ -128,6 +130,8 @@ class instancedShadowRenderPipelineState: RenderPipelineState{
         renderPipelineDescriptor.fragmentFunction = nil
         
         renderPipelineDescriptor.vertexDescriptor = Graphics.VertexDescriptors[.Basic]
+        
+        renderPipelineDescriptor.inputPrimitiveTopology = .triangle
         
         super.init(renderPipelineDescriptor)
     }

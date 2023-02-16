@@ -19,8 +19,9 @@ vertex RasterizerData instanced_vertex_shader(const VertexIn verticesIn [[stage_
         ModelConstants modelConstant = modelConstants[instanceId];
     
         float4 worldPosition = modelConstant.modelMatrix * float4(verticesIn.position, 1);
-        float4 worldEyeDirection = normalize(worldPosition - float4(sceneConstants.cameraPosition,1));
         float4 worldNormal       = normalize(modelConstant.modelMatrix * float4(verticesIn.normal, 1.0));
+        float3 reflectionNormal  = normalize(modelConstant.modelMatrix * float4(verticesIn.normal.xyz, 0)).xyz;
+        float3 viewVector = normalize(sceneConstants.cameraPosition.xyz - worldPosition.xyz);
     
         rd.position = sceneConstants.projectionMatrix * sceneConstants.viewMatrix * worldPosition;
         
@@ -35,7 +36,8 @@ vertex RasterizerData instanced_vertex_shader(const VertexIn verticesIn [[stage_
         rd.surfaceTangent = normalize(modelConstant.modelMatrix * float4(verticesIn.tangent, 0.0)).xyz;
         rd.surfaceBiTangent = normalize(modelConstant.modelMatrix * float4(verticesIn.bitangent, 0.0)).xyz;
     
-        rd.reflectionVector = reflect(worldEyeDirection, worldNormal).xyz;
+        rd.reflectionVector = reflect(-viewVector, reflectionNormal);
+        rd.reflectionVector = float3(-rd.reflectionVector.x, rd.reflectionVector.y, rd.reflectionVector.z);
 
         return rd;
     

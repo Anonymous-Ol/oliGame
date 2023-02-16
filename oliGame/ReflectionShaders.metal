@@ -28,7 +28,7 @@ vertex ReflectionRasterizerData cubemap_instanced_vertex_shader(const    VertexI
         SceneConstants sceneConstants = multipleSceneConstants[face];
     
         float4 worldPosition = modelConstant.modelMatrix * float4(verticesIn.position, 1);
-        float4 worldEyeDirection = normalize(worldPosition - float4(sceneConstants.cameraPosition,1));
+        //float4 worldEyeDirection = normalize(worldPosition - float4(sceneConstants.cameraPosition,1));
         float4 worldNormal       = normalize(modelConstant.modelMatrix * float4(verticesIn.normal, 1.0));
     
         rd.position = sceneConstants.projectionMatrix * sceneConstants.viewMatrix * worldPosition;
@@ -61,7 +61,7 @@ vertex ReflectionRasterizerData cubemap_vertex_shader(const    VertexIn        v
     SceneConstants sceneConstants = multipleSceneConstants[face];
     
     float4 worldPosition     = modelConstants.modelMatrix * float4(verticesIn.position, 1);
-    float4 worldEyeDirection = normalize(worldPosition - float4(sceneConstants.cameraPosition,1));
+    //float4 worldEyeDirection = normalize(worldPosition - float4(sceneConstants.cameraPosition,1));
     float4 worldNormal       = normalize(modelConstants.modelMatrix * float4(verticesIn.normal, 1.0));
     
     

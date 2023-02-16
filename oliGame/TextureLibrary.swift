@@ -14,9 +14,11 @@ enum TextureTypes{
     
     case BaseColorRender_0
     case BaseColorRender_1
+    case BaseColorRender_2
     case ShadowRender
     case ShadowDepth
     case BaseDepthRender
+    case ReflectionRender
 }
 
 class TextureLibrary: Library<TextureTypes, MTLTexture>{

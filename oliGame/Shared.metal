@@ -33,6 +33,7 @@ struct RasterizerData{
     float3 surfaceBiTangent;
     
     float3 reflectionVector;
+    
 };
 
 struct ReflectionRasterizerData{
@@ -62,6 +63,7 @@ struct SceneConstants{
     float4x4 skyViewMatrix;
     float4x4 projectionMatrix;
     float3 cameraPosition;
+    float3 lookAtPosition;
 };
 struct Material{
     float4 color;
@@ -112,7 +114,8 @@ struct uvReturn {
 struct ShadowTextureArgumentBuffer{
     depth2d<float, access::sample> texture [[id(1)]];
 };
-///Note: UNUSED
+
 struct ShadowRasterizerData{
     float4 position  [[position]];
+    uint   face      [[render_target_array_index]];
 };

@@ -15,10 +15,9 @@ class Scene: Node{
     private var _cameraPos: MTLBuffer!
     private var _shadowSceneConstants = SceneConstants()
     private var _lightManager = LightManager()
-    private var _reflectionRender: MTLTexture!
+    //private var _reflectionRender: MTLTexture!
     private var _combinedShadowTexture: MTLTexture!
-    private var _reflectionRenderPassDescriptor: MTLRenderPassDescriptor!
-    private var _renderingReflections: Bool = false
+            var _renderingReflections: Bool = false
     private var _reflectionPitch: Float = 0
     private var _reflectionYaw:   Float = 0
     private var _reflectionRoll:  Float = 0
@@ -26,8 +25,7 @@ class Scene: Node{
     
     override init(name: String){
         super.init(name: name)
-        _cubeMapSceneConstants = Engine.Device.makeBuffer(length: SceneConstants.stride(6), options: [])
-        _cameraPos = Engine.Device.makeBuffer(length: float3.stride(6), options: [])
+
         buildScene()
     }
     func buildScene(){
@@ -48,51 +46,6 @@ class Scene: Node{
         _cameraManager.update(deltaTime: deltaTime)
     }
     
-    func createReflectionRenderPassDescriptor(){
-        
-        let reflectionTextureDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .bgra8Unorm_srgb,
-                                                                                   width: 300,
-                                                                                   height: 300,
-                                                                                   mipmapped: false)
-        
-        
-        reflectionTextureDescriptor.textureType = .typeCube
-        reflectionTextureDescriptor.storageMode = .private
-        reflectionTextureDescriptor.usage = [.renderTarget, .shaderRead]
-        //reflectionTextureDescriptor.arrayLength = 6
-        
-        let reflectionDepthTextureDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .depth32Float,
-                                                                                        width: 300,
-                                                                                        height: 300,
-                                                                                        mipmapped: false)
-        
-        
-        reflectionDepthTextureDescriptor.textureType = .typeCube
-        reflectionDepthTextureDescriptor.storageMode = .private
-        reflectionDepthTextureDescriptor.usage = [.renderTarget, .shaderRead]
-        //reflectionDepthTextureDescriptor.arrayLength = 6
-        
-        _reflectionRender = Engine.Device.makeTexture(descriptor: reflectionTextureDescriptor)!
-        var depthTexture: MTLTexture = Engine.Device.makeTexture(descriptor: reflectionDepthTextureDescriptor)!
-        
-        
-        
-        self._reflectionRenderPassDescriptor = MTLRenderPassDescriptor()
-        
-        
-        self._reflectionRenderPassDescriptor.colorAttachments[0].texture = _reflectionRender
-        self._reflectionRenderPassDescriptor.colorAttachments[0].loadAction =  .clear
-        self._reflectionRenderPassDescriptor.colorAttachments[0].storeAction = .store
-        
-        self._reflectionRenderPassDescriptor.depthAttachment.texture = depthTexture
-        
-        self._reflectionRenderPassDescriptor.renderTargetArrayLength = 6
-        
-        
-        
-        
-    }
-    
     override func update(deltaTime: Float){
         _sceneConstants.totalGameTime = GameTime.TotalGameTime
         _sceneConstants.viewMatrix = _cameraManager.currentCamera.viewMatrix
@@ -100,8 +53,11 @@ class Scene: Node{
         _sceneConstants.skyViewMatrix[3][0] = 0
         _sceneConstants.skyViewMatrix[3][1] = 0
         _sceneConstants.skyViewMatrix[3][2] = 0
+        _sceneConstants.cameraPosition = _cameraManager.currentCamera.getPosition()
+        var inverse = _sceneConstants.viewMatrix
+        var lap     = inverse * float4(0,0,-1,1)
+        _sceneConstants.lookAtPosition = float3(lap.x, lap.y, lap.z)
         _sceneConstants.projectionMatrix = _cameraManager.currentCamera.projectionMatrix
-        
         super.update(deltaTime:  deltaTime)
         
     }
@@ -120,25 +76,34 @@ class Scene: Node{
     override func shadowRender(renderCommandEncoder: MTLRenderCommandEncoder) {
         super.shadowRender(renderCommandEncoder: renderCommandEncoder)
     }
-    func doReflectionRender(commandBuffer: MTLCommandBuffer) {
-        
-        super.reflectionRender(commandBuffer: commandBuffer)
+    func doReflectionRender() {
+        ReflectionVariables.reflectionPositions = []
+        ReflectionVariables.currentReflectionIndex = 0
+        super.reflectionRender()
     }
-    func ReflectionRender(commandBuffer: MTLCommandBuffer, position: float3) -> MTLTexture{
-        _renderingReflections = true
-        generateCubeMapSceneConstants(position: position)
-        createReflectionRenderPassDescriptor()
-        let renderCommandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: _reflectionRenderPassDescriptor)
-        renderCommandEncoder?.label = "Reflection Render Command Encoder"
-        renderCommandEncoder?.pushDebugGroup("Starting Reflection Render")
-        _lightManager.setLightData(renderCommandEncoder!)
-        renderCommandEncoder?.setVertexBuffer(_cubeMapSceneConstants, offset: 0, index: 1)
-        renderCommandEncoder?.setFragmentBuffer(_cameraPos, offset:0, index: 4)
-        super.cubeMapRender(renderCommandEncoder: renderCommandEncoder!)
-        renderCommandEncoder?.popDebugGroup()
-        renderCommandEncoder?.endEncoding()
-        _renderingReflections = false
-        return(_reflectionRender)
+    func ReflectionRender(commandBuffer: MTLCommandBuffer){
+        ReflectionVariables.bufferLength = ReflectionVariables.currentReflectionIndex * 6
+        if(ReflectionVariables.bufferLength != ReflectionVariables.lastBufferLength){
+            _cubeMapSceneConstants = Engine.Device.makeBuffer(length: SceneConstants.stride(Int(ReflectionVariables.bufferLength)), options: [])
+            _cameraPos = Engine.Device.makeBuffer(length: float3.stride(Int(ReflectionVariables.bufferLength)), options: [])
+            ReflectionVariables.lastBufferLength = ReflectionVariables.bufferLength
+        }
+        if(ReflectionVariables.currentReflectionIndex != ReflectionVariables.lastReflectionIndex){
+            Renderer.createReflectionRenderPassDescriptor(ReflectionVariables.currentReflectionIndex)
+            ReflectionVariables.lastReflectionIndex = ReflectionVariables.currentReflectionIndex
+        }
+            _renderingReflections = true
+        generateCubeMapSceneConstants(position: ReflectionVariables.reflectionPositions)
+            let renderCommandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: Renderer._reflectionRenderPassDescriptor)
+            renderCommandEncoder?.label = "Reflection Render Command Encoder"
+            renderCommandEncoder?.pushDebugGroup("Starting Reflection Render")
+            _lightManager.setLightData(renderCommandEncoder!)
+            renderCommandEncoder?.setVertexBuffer(_cubeMapSceneConstants, offset: 0, index: 1)
+            renderCommandEncoder?.setFragmentBuffer(_cameraPos, offset:0, index: 4)
+            super.cubeMapRender(renderCommandEncoder: renderCommandEncoder!)
+            renderCommandEncoder?.popDebugGroup()
+            renderCommandEncoder?.endEncoding()
+            _renderingReflections = false
     }
     override func cubeMapRender(renderCommandEncoder: MTLRenderCommandEncoder) {
         
@@ -195,16 +160,19 @@ class Scene: Node{
         Result[3][2] = -(zFar + zNear) / (zFar - zNear);
         return Result;
     }
-    func generateCubeMapSceneConstants(position: float3){
-        var cubeMapSceneConstantsPointer = _cubeMapSceneConstants.contents().bindMemory(to: SceneConstants.self, capacity: 6)
-        var cameraPosPointer = _cameraPos.contents().bindMemory(to: float3.self, capacity: 6)
-        for i in 0...6{
-            switchToFace(faceIndex: i)
+    func generateCubeMapSceneConstants(position: [float3]){
+        var cubeMapSceneConstantsPointer = _cubeMapSceneConstants.contents().bindMemory(to: SceneConstants.self, capacity: 6*position.count)
+        var cameraPosPointer = _cameraPos.contents().bindMemory(to: float3.self, capacity: 6*position.count)
+        for i in 0...6*position.count-1{
+            let x = i % 6
+            let y = i - x
+            let z = y / 6
+            switchToFace(faceIndex: x)
             let projectionMatrix = matrix_float4x4.perspective(degreesFov: 90, aspectRation: 1, near: 0.1, far: 1000)
             var translation: float4x4 = matrix_identity_float4x4; // Identity matrix by default
-            translation[3][0] = -position.x; // Third column, first row
-            translation[3][1] = -position.y;
-            translation[3][2] = -position.z;
+            translation[3][0] = -position[z].x; // Third column, first row
+            translation[3][1] = -position[z].y;
+            translation[3][2] = -position[z].z;
             var rotation: float4x4 = matrix_identity_float4x4;
             rotation.rotate(angle: _reflectionPitch, axis: X_AXIS)
             rotation.rotate(angle: _reflectionYaw, axis: Y_AXIS)
@@ -219,7 +187,7 @@ class Scene: Node{
             faceConstants.skyViewMatrix[3][1] = 0
             faceConstants.skyViewMatrix[3][2] = 0
             faceConstants.projectionMatrix = projectionMatrix
-            faceConstants.cameraPosition = float3(0,2,0)
+            faceConstants.cameraPosition = position[z]
             cubeMapSceneConstantsPointer.pointee = faceConstants
             cameraPosPointer.pointee = faceConstants.cameraPosition
             cubeMapSceneConstantsPointer = cubeMapSceneConstantsPointer.advanced(by: 1)
@@ -261,6 +229,7 @@ class Scene: Node{
         default:
             break
         }
-        }
+        
+    }
 }
 

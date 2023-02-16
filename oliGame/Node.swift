@@ -80,12 +80,12 @@ class Node{
         }
         renderCommandEncoder.popDebugGroup()
     }
-    func reflectionRender(commandBuffer: MTLCommandBuffer){
+    func reflectionRender(){
         for child in _children{
-            child.reflectionRender(commandBuffer: commandBuffer)
+            child.reflectionRender()
         }
         if let renderable = self as? Renderable{
-            renderable.doReflectionRender(commandBuffer: commandBuffer)
+            renderable.doReflectionRender()
         }
     }
     func cubeMapRender(renderCommandEncoder: MTLRenderCommandEncoder){

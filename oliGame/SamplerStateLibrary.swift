@@ -37,6 +37,7 @@ class Linear_SamperState: SamplerState{
         samplerDescriptor.mipFilter = .linear
         samplerDescriptor.normalizedCoordinates = true
         samplerDescriptor.label = name
+
         samplerState = Engine.Device.makeSamplerState(descriptor: samplerDescriptor)
     }
 }

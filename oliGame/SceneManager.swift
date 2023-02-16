@@ -42,10 +42,12 @@ class SceneManager{
     public static func doShadowRender(commandBuffer: MTLCommandBuffer){
         currentScene.doShadowRender(commandBuffer:  commandBuffer)
     }
-    public static func doReflectionRender(commandBuffer: MTLCommandBuffer){
-        currentScene.doReflectionRender(commandBuffer: commandBuffer)
+    public static func doReflectionRender(){
+        currentScene.doReflectionRender()
     }
-    public static func ReflectionRender(commandBuffer: MTLCommandBuffer, position: float3) -> MTLTexture{
-        return(currentScene.ReflectionRender(commandBuffer: commandBuffer, position: position))
+    public static func ReflectionRender(commandBuffer: MTLCommandBuffer){
+        if(ReflectionVariables.currentReflectionIndex > 0){
+            currentScene.ReflectionRender(commandBuffer: commandBuffer)
+        }
     }
 }
