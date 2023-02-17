@@ -11,6 +11,7 @@ class ForestScene: Scene{
     var sun2 = Sun()
     var followTree = GameObject(name: "followTree", meshType: .TreePineA)
     override func buildScene(){
+
         sun1.setPosition(float3(0,100,100))
         addLight(sun1)
         
@@ -52,9 +53,15 @@ class ForestScene: Scene{
 //
 //        let reflectiveSpheres = Sphere()
 //        addChild(reflectiveSpheres)
+//
+//        let reflectiveSphereStatic = StaticSphere()
+//        addChild(reflectiveSphereStatic)
         
-        let reflectiveSphereStatic = StaticSphere()
-        addChild(reflectiveSphereStatic)
+        let transparentCube = GameObject(name: "Transparent Cube", meshType: .TransparentCube)
+        transparentCube.setPositionY(1)
+        addChild(transparentCube)
+        
+ 
 
         
 

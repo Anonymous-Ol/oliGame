@@ -19,7 +19,7 @@ enum MeshTypes{
     case Quad
     case SkySphere
     case RegSphere
-    
+    case TransparentCube
     //Terrain
     case GroundGrass
     
@@ -61,7 +61,7 @@ class MeshLibrary: Library<MeshTypes, Mesh>{
         _library.updateValue(Mesh(modelName: "flower_yellowA"), forKey: .flower_yellow)
         
         _library.updateValue(Mesh(modelName: "untitled"), forKey: .RegSphere)
-        
+        _library.updateValue(Mesh(modelName: "untitled2"), forKey: .TransparentCube)
         
 
     }
@@ -347,11 +347,12 @@ class Submesh{
                                     textureOrigin: .bottomLeft)
     }
     private func createMaterial(_ mdlMaterial: MDLMaterial){
-        if let ambient =      mdlMaterial.property(with:. emission)?.float3Value { _material.ambient = ambient }
-        if let diffuse =      mdlMaterial.property(with:. baseColor)?.float3Value { _material.diffuse = diffuse }
-        if let specular =     mdlMaterial.property(with:. specular)?.float3Value{ _material.specular = specular}
-        if let shininess =    mdlMaterial.property(with:. specularExponent)?.floatValue{_material.shininess = shininess}
-        if let reflectivity = mdlMaterial.property(with: .metallic)?.floatValue{_material.reflectivity = reflectivity}
+        if let ambient      = mdlMaterial.property(with:. emission)?        .float3Value { _material.ambient      = ambient     }
+        if let diffuse      = mdlMaterial.property(with:. baseColor)?       .float3Value { _material.diffuse      = diffuse     }
+        if let specular     = mdlMaterial.property(with:. specular)?        .float3Value { _material.specular     = specular    }
+        if let shininess    = mdlMaterial.property(with:. specularExponent)?.floatValue  { _material.shininess    = shininess   }
+        if let reflectivity = mdlMaterial.property(with: .metallic)?        .floatValue  { _material.reflectivity = reflectivity}
+        if let alpha        = mdlMaterial.property(with: .opacity)?         .floatValue  { _material.color.w      = alpha       }
     }
     init(indices: [UInt32]){
         self._indices = indices

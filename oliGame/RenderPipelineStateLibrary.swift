@@ -66,6 +66,16 @@ class basicRenderPipelineState: RenderPipelineState{
         
         renderPipelineDescriptor.vertexDescriptor = Graphics.VertexDescriptors[.Basic]
         
+        renderPipelineDescriptor.colorAttachments[0].isBlendingEnabled = true
+        
+        renderPipelineDescriptor.colorAttachments[0].sourceRGBBlendFactor = .one
+        renderPipelineDescriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
+        renderPipelineDescriptor.colorAttachments[0].rgbBlendOperation = .add
+          
+        renderPipelineDescriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
+        renderPipelineDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
+        renderPipelineDescriptor.colorAttachments[0].alphaBlendOperation = .add
+        
         super.init(renderPipelineDescriptor)
     }
 }
@@ -81,6 +91,7 @@ class basicShadowRenderPipelineState: RenderPipelineState{
         renderPipelineDescriptor.vertexDescriptor = Graphics.VertexDescriptors[.Basic]
         
         renderPipelineDescriptor.inputPrimitiveTopology = .triangle
+        
         
         super.init(renderPipelineDescriptor)
     }
@@ -101,6 +112,16 @@ class basicCubemapRenderPipelineState: RenderPipelineState{
         
         renderPipelineDescriptor.inputPrimitiveTopology = .triangle
         
+        renderPipelineDescriptor.colorAttachments[0].isBlendingEnabled = true
+        
+        renderPipelineDescriptor.colorAttachments[0].sourceRGBBlendFactor = .one
+        renderPipelineDescriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
+        renderPipelineDescriptor.colorAttachments[0].rgbBlendOperation = .add
+          
+        renderPipelineDescriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
+        renderPipelineDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
+        renderPipelineDescriptor.colorAttachments[0].alphaBlendOperation = .add
+        
         super.init(renderPipelineDescriptor)
     }
 }
@@ -116,6 +137,16 @@ class instancedRenderPipelineState: RenderPipelineState{
         renderPipelineDescriptor.fragmentFunction = Graphics.Shaders[.FragmentBasic]
         
         renderPipelineDescriptor.vertexDescriptor = Graphics.VertexDescriptors[.Basic]
+        
+        renderPipelineDescriptor.colorAttachments[0].isBlendingEnabled = true
+        
+        renderPipelineDescriptor.colorAttachments[0].sourceRGBBlendFactor = .one
+        renderPipelineDescriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
+        renderPipelineDescriptor.colorAttachments[0].rgbBlendOperation = .add
+          
+        renderPipelineDescriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
+        renderPipelineDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
+        renderPipelineDescriptor.colorAttachments[0].alphaBlendOperation = .add
         
         super.init(renderPipelineDescriptor)
     }
@@ -150,6 +181,16 @@ class instancedCubemapRenderPipelineState: RenderPipelineState{
         renderPipelineDescriptor.vertexDescriptor = Graphics.VertexDescriptors[.Basic]
         
         renderPipelineDescriptor.inputPrimitiveTopology = .triangle
+        
+        renderPipelineDescriptor.colorAttachments[0].isBlendingEnabled = true
+        
+        renderPipelineDescriptor.colorAttachments[0].sourceRGBBlendFactor = .one
+        renderPipelineDescriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
+        renderPipelineDescriptor.colorAttachments[0].rgbBlendOperation = .add
+          
+        renderPipelineDescriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
+        renderPipelineDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
+        renderPipelineDescriptor.colorAttachments[0].alphaBlendOperation = .add
         
         super.init(renderPipelineDescriptor)
     }
