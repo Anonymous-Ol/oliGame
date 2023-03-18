@@ -8,7 +8,7 @@
 import MetalKit
 
 enum SceneTypes{
-    case Sandbox
+    //case Sandbox
     case Forest
 }
 
@@ -16,8 +16,8 @@ class SceneManager{
     static var currentScene: Scene!
     public static func SetScene(_ sceneType: SceneTypes){
         switch sceneType{
-        case .Sandbox:
-            currentScene = SandboxScene(name: "SandboxScene")
+//        case .Sandbox:
+//            currentScene = SandboxScene(name: "SandboxScene")
         case .Forest:
             currentScene = ForestScene(name:"ForestScene")
         }
@@ -29,9 +29,9 @@ class SceneManager{
         currentScene.updateCameras(deltaTime: deltaTime)
         currentScene.update(deltaTime: deltaTime)
     }
-    public static func Render(renderCommandEncoder: MTLRenderCommandEncoder){
+    public static func setupRender(renderCommandEncoder: MTLRenderCommandEncoder){
 
-        currentScene.render(renderCommandEncoder: renderCommandEncoder)
+        currentScene.setupRender(renderCommandEncoder: renderCommandEncoder)
     }
     public static func CopyShadowData(blitCommandEncoder: MTLBlitCommandEncoder){
         currentScene.copyShadowData(blitCommandEncoder: blitCommandEncoder)
@@ -46,7 +46,7 @@ class SceneManager{
         currentScene.doReflectionRender()
     }
     public static func ReflectionRender(commandBuffer: MTLCommandBuffer){
-        if(ReflectionVariables.currentReflectionIndex > 0){
+        if(RenderVariables.currentReflectionIndex > 0){
             currentScene.ReflectionRender(commandBuffer: commandBuffer)
         }
     }

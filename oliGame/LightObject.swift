@@ -10,7 +10,7 @@ class LightObject: GameObject{
     
     var lightData = LightData()
     
-    init(name: String){
+    override init(name: String){
         super.init(name:"name", meshType: .None)
     }
     override init(name:String, meshType: MeshTypes){
@@ -24,8 +24,8 @@ class LightObject: GameObject{
         super.update(deltaTime: deltaTime)
 
     }
-    override func render(renderCommandEncoder: MTLRenderCommandEncoder){
-        super.render(renderCommandEncoder:  renderCommandEncoder)
+    override func setupRender(renderCommandEncoder: MTLRenderCommandEncoder){
+        super.setupRender(renderCommandEncoder:  renderCommandEncoder)
     }
     override func shadowRender(renderCommandEncoder: MTLRenderCommandEncoder){
         super.shadowRender(renderCommandEncoder: renderCommandEncoder)

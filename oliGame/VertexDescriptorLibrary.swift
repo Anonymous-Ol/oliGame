@@ -69,6 +69,19 @@ public struct basicVertexDescriptor: VertexDescriptor{
         vertexDescriptor.attributes[5].bufferIndex =  0
         vertexDescriptor.attributes[5].offset =       offset
         
+        offset += float3.size
+        //Joint Indices
+        vertexDescriptor.attributes[6].format = .ushort4
+        vertexDescriptor.attributes[6].bufferIndex =  0
+        vertexDescriptor.attributes[6].offset =       offset
+        
+        offset += MemoryLayout<simd_ushort4>.size
+        
+        vertexDescriptor.attributes[7].format = .float4
+        vertexDescriptor.attributes[7].bufferIndex =  0
+        vertexDescriptor.attributes[7].offset =       offset
+        
+        
         
         
         vertexDescriptor.layouts[0].stride = Vertex.stride

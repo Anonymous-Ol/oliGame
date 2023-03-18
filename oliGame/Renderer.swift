@@ -117,8 +117,44 @@ extension Renderer: MTKViewDelegate{
         Renderer.ScreenSize = float2(Float(view.currentDrawable!.texture.width), Float(view.currentDrawable!.texture.height))
     }
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+
         updateScreenSize(view: view)
         createBaseRenderPassDescriptor(view: view)
+    }
+    func render(renderCommandEncoder: MTLRenderCommandEncoder){
+        var transparentObjects: [setupRenderReturn] = []
+        var opaqueObjects: [setupRenderReturn] = []
+        for thing in RenderVariables.stuffToRender{
+            if(thing.isTransparent){
+                transparentObjects.append(thing)
+            }else{
+                opaqueObjects.append(thing)
+            }
+        }
+        transparentObjects.sort { (lhs: setupRenderReturn, rhs: setupRenderReturn) -> Bool in
+            // you can have additional code here
+            return lhs.distanceFromCamera > rhs.distanceFromCamera
+        }
+        opaqueObjects.sort { (lhs: setupRenderReturn, rhs: setupRenderReturn) -> Bool in
+            // you can have additional code here
+            return lhs.distanceFromCamera < rhs.distanceFromCamera
+        }
+        renderCommandEncoder.pushDebugGroup("Rendering Opaque Objects")
+        for thing in opaqueObjects{
+            renderCommandEncoder.pushDebugGroup(thing.name)
+            thing.doRenderFunction(renderCommandEncoder)
+            renderCommandEncoder.popDebugGroup()
+        }
+        renderCommandEncoder.popDebugGroup()
+        renderCommandEncoder.pushDebugGroup("Rendering Transparent Objects")
+        for thing in transparentObjects{
+            renderCommandEncoder.pushDebugGroup(thing.name)
+            thing.doRenderFunction(renderCommandEncoder)
+            renderCommandEncoder.popDebugGroup()
+        }
+        renderCommandEncoder.popDebugGroup()
+        
+        RenderVariables.stuffToRender = []
     }
     func copyShadowTextureData(commandBuffer: MTLCommandBuffer){
         let blitCommandEncoder = commandBuffer.makeBlitCommandEncoder()
@@ -143,7 +179,8 @@ extension Renderer: MTKViewDelegate{
             renderCommandEncoder?.label = "Base RENDER COMMAND ENCODER"
             renderCommandEncoder?.pushDebugGroup("Starting Render")
             //renderCommandEncoder?.setCullMode(.back)
-            SceneManager.Render(renderCommandEncoder: renderCommandEncoder!)
+            SceneManager.setupRender(renderCommandEncoder: renderCommandEncoder!)
+            render(renderCommandEncoder: renderCommandEncoder!)
             renderCommandEncoder?.popDebugGroup()
             renderCommandEncoder?.endEncoding()
 
@@ -159,8 +196,7 @@ extension Renderer: MTKViewDelegate{
             Renderer.currnetPipelineState = .Final
             renderCommandEncoder?.setFragmentTexture(Assets.Textures[.BaseColorRender_0], index: 0)
             
-            Assets.Meshes[.Quad]?.drawPrimitives(renderCommandEncoder!)
-            
+            Assets.Meshes[.Quad_Custom]?.drawPrimitives(renderCommandEncoder!)
             renderCommandEncoder?.popDebugGroup()
             renderCommandEncoder?.endEncoding()
     }

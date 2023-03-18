@@ -6,9 +6,9 @@
 //
 
 class Chest: GameObject {
-    init(){
-        super.init(name:"chest", meshType: .Chest)
-        setScale(0.01)
-        
-    }
+//    init(){
+//        super.init(name:"chest", meshType: .Chest)
+//        setScale(0.01)
+//        
+//    }
 }

@@ -11,23 +11,23 @@ class Node{
     private var _name: String = "Node"
     private var _id: String!
     
-    private var _position: float3 = float3(0)
-    private var _scale: float3 = float3(1)
-    private var _rotation: float3 = float3(0)
-    private var _children: [Node] = []
+    private var _position: float3 = float3(repeating: 0)
+    private var _scale: float3 = float3(repeating: 1)
+    private var _rotation: float3 = float3(repeating: 0)
+            var _children: [Node] = []
     var camFrustum: FrustumR = FrustumR()
-    var cullable:   Bool = true
-    var defaultRadius: Float = 1
+    private var _cullable:   Bool = true
     var radius:     Float  = 1
     var culled = false
     var reflective = false
     var preventRender = false
-    
 
+    var skinner: Skinner?
+    var transform = matrix_identity_float4x4 //Extra modelMatrix for skelatal animation //Shut up previous me its frickin useless //Shut up previous me its actually useful
     var parentModelMatrix = matrix_identity_float4x4
     private var _modelMatrix = matrix_identity_float4x4
     var modelMatrix: matrix_float4x4{
-        return matrix_multiply(parentModelMatrix, _modelMatrix)
+        return matrix_multiply(matrix_multiply(transform, _modelMatrix), parentModelMatrix)
     }
     
     func updateModelMatrix(){
@@ -53,22 +53,19 @@ class Node{
     func doUpdate() {}
     func update(deltaTime: Float){
         doUpdate()
-
-
         for child in _children{
             child.parentModelMatrix = self.modelMatrix
             child.update(deltaTime: deltaTime)
         }
+        
     }
-    func render(renderCommandEncoder: MTLRenderCommandEncoder){
-        renderCommandEncoder.pushDebugGroup("Rendering \(_name)")
+    func setupRender(renderCommandEncoder: MTLRenderCommandEncoder){
         for child in _children{
-            child.render(renderCommandEncoder: renderCommandEncoder)
+            child.setupRender(renderCommandEncoder: renderCommandEncoder)
         }
         if let renderable = self as? Renderable{
-            renderable.doRender(renderCommandEncoder: renderCommandEncoder)
+            RenderVariables.stuffToRender.append(renderable.setupRender(cameraPos: SceneManager.currentScene._cameraManager.currentCamera.getPosition()))
         }
-        renderCommandEncoder.popDebugGroup()
     }
     func shadowRender(renderCommandEncoder: MTLRenderCommandEncoder){
         renderCommandEncoder.pushDebugGroup("Rendering \(_name) Shadows")
@@ -183,6 +180,7 @@ extension Node {
     func getRotationX()->Float { return self._rotation.x }
     func getRotationY()->Float { return self._rotation.y }
     func getRotationZ()->Float { return self._rotation.z }
+    func getModelMatrixPosition() -> float3 { return float3(self.modelMatrix[3][0], self.modelMatrix[3][1], self.modelMatrix[3][2]) }
     func rotate(_ x: Float, _ y: Float, _ z: Float){ self._rotation += float3(x,y,z) }
     func rotateX(_ delta: Float){
         self._rotation.x += delta
@@ -200,53 +198,67 @@ extension Node {
     //Scaling
     func setScale(_ scale: float3){
         self._scale = scale
-        self.radius = self.defaultRadius * max(self._scale.x, self._scale.y, self._scale.z)
         updateModelMatrix()
         afterScale()
     }
     func setScale(_ scale: Float){
         setScale(float3(scale, scale, scale))
-        self.radius = self.defaultRadius * max(self._scale.x, self._scale.y, self._scale.z)
         updateModelMatrix()
     }
     func setSclae(_ x: Float,_ y: Float,_ z: Float){
         setScale(float3(x,y,z))
-        self.radius = self.defaultRadius * max(self._scale.x, self._scale.y, self._scale.z)
         updateModelMatrix()
     }
     func setScaleX(_ scaleX: Float){
         self._scale.x = scaleX
-        self.radius = self.defaultRadius * max(self._scale.x, self._scale.y, self._scale.z)
         updateModelMatrix()
     }
     func setScaleY(_ scaleY: Float){
         self._scale.y = scaleY
-        self.radius = self.defaultRadius * max(self._scale.x, self._scale.y, self._scale.z)
         updateModelMatrix()
     }
     func setScaleZ(_ scaleZ: Float){
         self._scale.z = scaleZ
-        self.radius = self.defaultRadius * max(self._scale.x, self._scale.y, self._scale.z)
+        self.radius = self.radius * reduce_max(getModelMatrixScale())
         updateModelMatrix()
     }
     func getScale()->float3 { return self._scale }
     func getScaleX()->Float { return self._scale.x }
     func getScaleY()->Float { return self._scale.y }
     func getScaleZ()->Float { return self._scale.z }
+    func getModelMatrixScale()->float3 {
+        var scaleX: Float = sqrt(pow(self.modelMatrix[0][0],2) + pow(self.modelMatrix[0][1],2) + pow(self.modelMatrix[0][2], 2))
+        var scaleY: Float = sqrt(pow(self.modelMatrix[1][0],2) + pow(self.modelMatrix[1][1],2) + pow(self.modelMatrix[1][2], 2))
+        var scaleZ: Float = sqrt(pow(self.modelMatrix[2][0],2) + pow(self.modelMatrix[2][1],2) + pow(self.modelMatrix[2][2], 2))
+        return float3(scaleX, scaleY, scaleZ)
+    }
     func scaleX(_ delta: Float){
         self._scale.x += delta
-        self.radius = self.defaultRadius * max(self._scale.x, self._scale.y, self._scale.z)
         updateModelMatrix()
 
     }
     func scaleY(_ delta: Float){
         self._scale.y += delta
-        self.radius = self.defaultRadius * max(self._scale.x, self._scale.y, self._scale.z)
         updateModelMatrix()
     }
     func scaleZ(_ delta: Float){
         self._scale.z += delta
-        self.radius = self.defaultRadius * max(self._scale.x, self._scale.y, self._scale.z)
         updateModelMatrix()
+    }
+    
+    func setCullable(_ cullable: Bool){
+        self._cullable = cullable
+        for child in _children{
+            child._cullable = cullable
+        }
+    }
+    func isCullable() -> Bool{
+        return self._cullable
+    }
+    func setSkinner(skinner: Skinner){
+        self.skinner = skinner
+        for child in _children{
+            setSkinner(skinner: skinner)
+        }
     }
 }

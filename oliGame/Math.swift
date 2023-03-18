@@ -6,6 +6,7 @@
 //
 
 import MetalKit
+import simd
 
 public var X_AXIS: float3{
     return float3(1,0,0)
@@ -16,6 +17,7 @@ public var Y_AXIS: float3{
 public var Z_AXIS: float3{
     return float3(0,0,1)
 }
+
 
 extension Float{
     var toRadians: Float{
@@ -154,3 +156,4 @@ extension simd_float4x4 {
                   SIMD4<Float>(tx, ty, tz, 1))
     }
 }
+

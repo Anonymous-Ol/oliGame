@@ -9,7 +9,9 @@ import MetalKit
 
 enum RenderPipelineStateTypes{
     case Basic
+    case BasicSkinned
     case BasicShadow
+    case SkinnedShadow
     case BasicCubemap
     case Instanced
     case InstancedShadow
@@ -25,7 +27,9 @@ class RenderPipelineStateLibrary: Library<RenderPipelineStateTypes, MTLRenderPip
         
     override func fillLibrary(){
         _library.updateValue(basicRenderPipelineState(), forKey: .Basic)
+        _library.updateValue(skinnedRenderPipelineState(), forKey: .BasicSkinned)
         _library.updateValue(basicShadowRenderPipelineState(), forKey: .BasicShadow)
+        _library.updateValue(skinnedShadowRenderPipelineState(), forKey: .SkinnedShadow)
         _library.updateValue(basicCubemapRenderPipelineState(), forKey: .BasicCubemap)
 
         
@@ -79,6 +83,32 @@ class basicRenderPipelineState: RenderPipelineState{
         super.init(renderPipelineDescriptor)
     }
 }
+class skinnedRenderPipelineState: RenderPipelineState{
+    init(){
+        let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
+        
+        renderPipelineDescriptor.colorAttachments[0].pixelFormat = Preferences.MainPixelFomat
+        
+        renderPipelineDescriptor.depthAttachmentPixelFormat = Preferences.MainDethPixelFomat
+        
+        renderPipelineDescriptor.vertexFunction = Graphics.Shaders[.VertexSkinned]
+        renderPipelineDescriptor.fragmentFunction = Graphics.Shaders[.FragmentBasic]
+        
+        renderPipelineDescriptor.vertexDescriptor = Graphics.VertexDescriptors[.Basic]
+        
+        renderPipelineDescriptor.colorAttachments[0].isBlendingEnabled = true
+        
+        renderPipelineDescriptor.colorAttachments[0].sourceRGBBlendFactor = .one
+        renderPipelineDescriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
+        renderPipelineDescriptor.colorAttachments[0].rgbBlendOperation = .add
+          
+        renderPipelineDescriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
+        renderPipelineDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
+        renderPipelineDescriptor.colorAttachments[0].alphaBlendOperation = .add
+        
+        super.init(renderPipelineDescriptor)
+    }
+}
 class basicShadowRenderPipelineState: RenderPipelineState{
     init(){
         let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
@@ -86,6 +116,23 @@ class basicShadowRenderPipelineState: RenderPipelineState{
         renderPipelineDescriptor.depthAttachmentPixelFormat = .depth32Float
         
         renderPipelineDescriptor.vertexFunction = Graphics.Shaders[.VertexBasicShadow]
+        renderPipelineDescriptor.fragmentFunction = nil
+        
+        renderPipelineDescriptor.vertexDescriptor = Graphics.VertexDescriptors[.Basic]
+        
+        renderPipelineDescriptor.inputPrimitiveTopology = .triangle
+        
+        
+        super.init(renderPipelineDescriptor)
+    }
+}
+class skinnedShadowRenderPipelineState: RenderPipelineState{
+    init(){
+        let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
+
+        renderPipelineDescriptor.depthAttachmentPixelFormat = .depth32Float
+        
+        renderPipelineDescriptor.vertexFunction = Graphics.Shaders[.VertexSkinnedShadow]
         renderPipelineDescriptor.fragmentFunction = nil
         
         renderPipelineDescriptor.vertexDescriptor = Graphics.VertexDescriptors[.Basic]

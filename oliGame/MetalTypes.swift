@@ -47,13 +47,14 @@ extension sizeable {
     }
 
 
-extension UInt32: sizeable{}
-extension float3: sizeable{}
-extension Float:  sizeable{}
-extension float4: sizeable{}
-extension float2: sizeable{}
-extension Int32:  sizeable{}
-extension Bool:   sizeable{}
+extension UInt32:   sizeable{}
+extension float3:   sizeable{}
+extension Float:    sizeable{}
+extension float4:   sizeable{}
+extension float2:   sizeable{}
+extension Int32:    sizeable{}
+extension Bool:     sizeable{}
+extension float4x4: sizeable{}
 
 struct Vertex: sizeable{
     var position: float3
@@ -63,6 +64,9 @@ struct Vertex: sizeable{
     
     var tangent: float3
     var bitangent: float3
+    
+    var indices: simd_ushort4
+    var weights: float4
 }
 
 struct ModelConstants: sizeable{

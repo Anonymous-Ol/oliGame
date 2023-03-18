@@ -62,12 +62,12 @@ class Scene: Node{
         
     }
     
-    override func render(renderCommandEncoder: MTLRenderCommandEncoder) {
+    override func setupRender(renderCommandEncoder: MTLRenderCommandEncoder) {
         if(!_renderingReflections){
             renderCommandEncoder.setVertexBytes(&_sceneConstants, length: SceneConstants.stride, index: 1)
             renderCommandEncoder.setFragmentBytes(&_sceneConstants.cameraPosition, length: float3.stride, index: 4)
             _lightManager.setLightData(renderCommandEncoder)
-            super.render(renderCommandEncoder: renderCommandEncoder)
+            super.setupRender(renderCommandEncoder: renderCommandEncoder)
         }
     }
     func copyShadowData(blitCommandEncoder: MTLBlitCommandEncoder){
@@ -77,23 +77,23 @@ class Scene: Node{
         super.shadowRender(renderCommandEncoder: renderCommandEncoder)
     }
     func doReflectionRender() {
-        ReflectionVariables.reflectionPositions = []
-        ReflectionVariables.currentReflectionIndex = 0
+        RenderVariables.reflectionPositions = []
+        RenderVariables.currentReflectionIndex = 0
         super.reflectionRender()
     }
     func ReflectionRender(commandBuffer: MTLCommandBuffer){
-        ReflectionVariables.bufferLength = ReflectionVariables.currentReflectionIndex * 6
-        if(ReflectionVariables.bufferLength != ReflectionVariables.lastBufferLength){
-            _cubeMapSceneConstants = Engine.Device.makeBuffer(length: SceneConstants.stride(Int(ReflectionVariables.bufferLength)), options: [])
-            _cameraPos = Engine.Device.makeBuffer(length: float3.stride(Int(ReflectionVariables.bufferLength)), options: [])
-            ReflectionVariables.lastBufferLength = ReflectionVariables.bufferLength
+        RenderVariables.bufferLength = RenderVariables.currentReflectionIndex * 6
+        if(RenderVariables.bufferLength != RenderVariables.lastBufferLength){
+            _cubeMapSceneConstants = Engine.Device.makeBuffer(length: SceneConstants.stride(Int(RenderVariables.bufferLength)), options: [])
+            _cameraPos = Engine.Device.makeBuffer(length: float3.stride(Int(RenderVariables.bufferLength)), options: [])
+            RenderVariables.lastBufferLength = RenderVariables.bufferLength
         }
-        if(ReflectionVariables.currentReflectionIndex != ReflectionVariables.lastReflectionIndex){
-            Renderer.createReflectionRenderPassDescriptor(ReflectionVariables.currentReflectionIndex)
-            ReflectionVariables.lastReflectionIndex = ReflectionVariables.currentReflectionIndex
+        if(RenderVariables.currentReflectionIndex != RenderVariables.lastReflectionIndex){
+            Renderer.createReflectionRenderPassDescriptor(RenderVariables.currentReflectionIndex)
+            RenderVariables.lastReflectionIndex = RenderVariables.currentReflectionIndex
         }
             _renderingReflections = true
-        generateCubeMapSceneConstants(position: ReflectionVariables.reflectionPositions)
+        generateCubeMapSceneConstants(position: RenderVariables.reflectionPositions)
             let renderCommandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: Renderer._reflectionRenderPassDescriptor)
             renderCommandEncoder?.label = "Reflection Render Command Encoder"
             renderCommandEncoder?.pushDebugGroup("Starting Reflection Render")

@@ -16,6 +16,8 @@ struct VertexIn{
     float3 normal   [[attribute(3)]];
     float3 tangent [[attribute(4)]];
     float3 bitangent [[attribute(5)]];
+    ushort4 jointIndices [[attribute(6)]];
+    float4 jointWeights [[attribute(7)]];
 };
 
 struct RasterizerData{

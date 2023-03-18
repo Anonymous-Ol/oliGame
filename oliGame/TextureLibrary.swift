@@ -78,7 +78,6 @@ class TextureLoader{
         var result: MTLTexture!
         
         if let url = Bundle.main.url(forResource: _textureName, withExtension: self._textureExtension){
-            print(self._textureExtension)
             let textureLoader = MTKTextureLoader(device: Engine.Device)
             
             let options: [MTKTextureLoader.Option : Any] = [
