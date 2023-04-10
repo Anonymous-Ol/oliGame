@@ -24,7 +24,7 @@ class Trees: Node {
         
         
     }
-    private func updateTreePosition(tree: Node, index: Int){
+    private func updateTreePosition(tree: jointNode, index: Int){
         let treeRadius: Float = Float.random(in: 8...90)
         let pos = float3(cos(Float(index)) * treeRadius,
                          0,

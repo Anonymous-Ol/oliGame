@@ -64,6 +64,12 @@ extension matrix_float4x4{
         
         self = matrix_multiply(self, result)
     }
+    init(_ m: double4x4) {
+        self.init(SIMD4<Float>(m.columns.0),
+                  SIMD4<Float>(m.columns.1),
+                  SIMD4<Float>(m.columns.2),
+                  SIMD4<Float>(m.columns.3))
+    }
     mutating func rotate(angle: Float, axis: float3){
             var result = matrix_identity_float4x4
             

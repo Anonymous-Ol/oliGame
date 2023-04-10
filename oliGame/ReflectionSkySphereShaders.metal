@@ -4,7 +4,7 @@
 //
 //  Created by Oliver Crumrine on 1/8/23.
 //
-
+#pragma once
 #include <metal_stdlib>
 #include "Shared.metal"
 using namespace metal;

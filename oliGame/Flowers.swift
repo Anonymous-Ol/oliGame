@@ -24,7 +24,7 @@ class Flowers: Node {
         
         
     }
-    private func updateFlowerPosition(flower: Node, index: Int){
+    private func updateFlowerPosition(flower: jointNode, index: Int){
         let flowerRadius: Float = Float.random(in: 0.9...70)
         let pos = float3(cos(Float(index)) * flowerRadius,
                          0,

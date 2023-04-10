@@ -8,8 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		A202199A296B97A200E4FB12 /* ReflectionSkySphereShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = A2021999296B97A200E4FB12 /* ReflectionSkySphereShaders.metal */; };
+		A20E89A729CF42C200BAC572 /* AnimationsLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20E89A629CF42C200BAC572 /* AnimationsLibrary.swift */; };
 		A2202FE8299EF686009198A7 /* untitled2.mtl in Resources */ = {isa = PBXBuildFile; fileRef = A2202FE6299EF685009198A7 /* untitled2.mtl */; };
 		A2202FE9299EF686009198A7 /* untitled2.obj in Resources */ = {isa = PBXBuildFile; fileRef = A2202FE7299EF686009198A7 /* untitled2.obj */; };
+		A245828929E47E27008F5EF2 /* SphereCollision.swift in Sources */ = {isa = PBXBuildFile; fileRef = A245828829E47E27008F5EF2 /* SphereCollision.swift */; };
 		A25886EF29BCD3DB0055EF1B /* BasicSkinnedShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = A25886EE29BCD3DB0055EF1B /* BasicSkinnedShaders.metal */; };
 		A26770DE29381C8D008DEB1D /* Suzannes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26770DD29381C8D008DEB1D /* Suzannes.swift */; };
 		A26770E029381F53008DEB1D /* TheSuzannes.obj in Resources */ = {isa = PBXBuildFile; fileRef = A26770DF29381F53008DEB1D /* TheSuzannes.obj */; };
@@ -145,8 +147,10 @@
 		A2B5CA312932624B00088B5F /* GameObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2B5CA302932624B00088B5F /* GameObject.swift */; };
 		A2B5CA33293263C300088B5F /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2B5CA32293263C300088B5F /* Renderer.swift */; };
 		A2B5D92B29A4540300A38AE5 /* Skeleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2B5D92A29A4540300A38AE5 /* Skeleton.swift */; };
+		A2B65EF529DE34470090F1B9 /* TopLevelObjectLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2B65EF429DE34470090F1B9 /* TopLevelObjectLibrary.swift */; };
 		A2C6F28029637E8A00AA8A61 /* Scene.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C6F27F29637E8A00AA8A61 /* Scene.swift */; };
 		A2D595FB29C5F8F6007F40EB /* SkinnedShadowShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = A2D595FA29C5F8F6007F40EB /* SkinnedShadowShaders.metal */; };
+		A2D595FD29C5FF35007F40EB /* SkinnedReflectionShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = A2D595FC29C5FF35007F40EB /* SkinnedReflectionShaders.metal */; };
 		A2DF41C3299AFAAB003E77FD /* CubeMapLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DF41C2299AFAAA003E77FD /* CubeMapLoader.swift */; };
 		A2DF41C5299B1D93003E77FD /* cubeMapVertical.png in Resources */ = {isa = PBXBuildFile; fileRef = A2DF41C4299B1D93003E77FD /* cubeMapVertical.png */; };
 		A2DF41C7299B1DC9003E77FD /* StaticSphere.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DF41C6299B1DC9003E77FD /* StaticSphere.swift */; };
@@ -159,15 +163,18 @@
 		A2F11A1E293E906400D10AEB /* clouds.png in Resources */ = {isa = PBXBuildFile; fileRef = A2F11A1D293E906400D10AEB /* clouds.png */; };
 		A2F11A20293E906F00D10AEB /* cruiser.bmp in Resources */ = {isa = PBXBuildFile; fileRef = A2F11A1F293E906F00D10AEB /* cruiser.bmp */; };
 		A2F11A22293EB20900D10AEB /* FinalShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = A2F11A21293EB20900D10AEB /* FinalShaders.metal */; };
+		A2F50EC129C61AAA00B53D30 /* Characters.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2F50EC029C61AAA00B53D30 /* Characters.swift */; };
 		A2F66EA22936D0950072AD96 /* ShaderLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2F66EA12936D0950072AD96 /* ShaderLibrary.swift */; };
 		A2FF9AC9293BB24D007E6E82 /* SkySphereShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = A2FF9AC8293BB24D007E6E82 /* SkySphereShaders.metal */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		A2021999296B97A200E4FB12 /* ReflectionSkySphereShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ReflectionSkySphereShaders.metal; sourceTree = "<group>"; };
+		A20E89A629CF42C200BAC572 /* AnimationsLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationsLibrary.swift; sourceTree = "<group>"; };
 		A21614DB2968CE4F00F051C1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		A2202FE6299EF685009198A7 /* untitled2.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = untitled2.mtl; sourceTree = "<group>"; };
 		A2202FE7299EF686009198A7 /* untitled2.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = untitled2.obj; sourceTree = "<group>"; };
+		A245828829E47E27008F5EF2 /* SphereCollision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphereCollision.swift; sourceTree = "<group>"; };
 		A25886EE29BCD3DB0055EF1B /* BasicSkinnedShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = BasicSkinnedShaders.metal; sourceTree = "<group>"; };
 		A26770DD29381C8D008DEB1D /* Suzannes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Suzannes.swift; sourceTree = "<group>"; };
 		A26770DF29381F53008DEB1D /* TheSuzannes.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TheSuzannes.obj; sourceTree = "<group>"; };
@@ -323,8 +330,10 @@
 		A2B5CA302932624B00088B5F /* GameObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameObject.swift; sourceTree = "<group>"; };
 		A2B5CA32293263C300088B5F /* Renderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
 		A2B5D92A29A4540300A38AE5 /* Skeleton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Skeleton.swift; sourceTree = "<group>"; };
+		A2B65EF429DE34470090F1B9 /* TopLevelObjectLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopLevelObjectLibrary.swift; sourceTree = "<group>"; };
 		A2C6F27F29637E8A00AA8A61 /* Scene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scene.swift; sourceTree = "<group>"; };
 		A2D595FA29C5F8F6007F40EB /* SkinnedShadowShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = SkinnedShadowShaders.metal; sourceTree = "<group>"; };
+		A2D595FC29C5FF35007F40EB /* SkinnedReflectionShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = SkinnedReflectionShaders.metal; sourceTree = "<group>"; };
 		A2DF41C2299AFAAA003E77FD /* CubeMapLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubeMapLoader.swift; sourceTree = "<group>"; };
 		A2DF41C4299B1D93003E77FD /* cubeMapVertical.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cubeMapVertical.png; sourceTree = SOURCE_ROOT; };
 		A2DF41C6299B1DC9003E77FD /* StaticSphere.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticSphere.swift; sourceTree = "<group>"; };
@@ -337,6 +346,7 @@
 		A2F11A1D293E906400D10AEB /* clouds.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clouds.png; sourceTree = "<group>"; };
 		A2F11A1F293E906F00D10AEB /* cruiser.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = cruiser.bmp; sourceTree = "<group>"; };
 		A2F11A21293EB20900D10AEB /* FinalShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = FinalShaders.metal; sourceTree = "<group>"; };
+		A2F50EC029C61AAA00B53D30 /* Characters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Characters.swift; sourceTree = "<group>"; };
 		A2F66EA12936D0950072AD96 /* ShaderLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShaderLibrary.swift; sourceTree = "<group>"; };
 		A2FF9AC8293BB24D007E6E82 /* SkySphereShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = SkySphereShaders.metal; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -385,77 +395,82 @@
 		A29FECAE293164FD00AA9534 /* oliGame */ = {
 			isa = PBXGroup;
 			children = (
-				A21614DB2968CE4F00F051C1 /* Info.plist */,
-				A29FECB3293164FF00AA9534 /* Assets.xcassets */,
-				A29FECB5293164FF00AA9534 /* Main.storyboard */,
-				A2B5D92A29A4540300A38AE5 /* Skeleton.swift */,
-				A26770F9293A7396008DEB1D /* ForestScene.swift */,
-				A2C6F27F29637E8A00AA8A61 /* Scene.swift */,
-				A29DE20B29328623002EB0B0 /* SceneManager.swift */,
-				A267711B293B71AF008DEB1D /* Flowers.swift */,
-				A2983E5E2997134E001C3AB4 /* Spheres.swift */,
-				A2DF41C6299B1DC9003E77FD /* StaticSphere.swift */,
-				A267711D293B71B3008DEB1D /* Trees.swift */,
-				A2A812482933932A00DB6AE7 /* InstancedGameObject.swift */,
-				A2B5CA302932624B00088B5F /* GameObject.swift */,
-				A2A8124A29339CCB00DB6AE7 /* CubeCollection.swift */,
-				A2A812422932FF4A00DB6AE7 /* Cube.swift */,
-				A29DE1FF293274EA002EB0B0 /* Pointer.swift */,
-				A29DE1FD293271E2002EB0B0 /* MeshLibrary.swift */,
-				A2DF41C2299AFAAA003E77FD /* CubeMapLoader.swift */,
-				A26770E329382818008DEB1D /* Chest.swift */,
-				A2A81262293402CC00DB6AE7 /* TextureLibrary.swift */,
-				A26770F729398357008DEB1D /* SkySphere.swift */,
-				A2A8126C293419AB00DB6AE7 /* Cruiser.swift */,
-				A2B5CA2E2932561D00088B5F /* RenderPipelineStateLibrary.swift */,
-				A2A812642934070B00DB6AE7 /* SamplerStateLibrary.swift */,
-				A2A81244293309FF00DB6AE7 /* DepthStencilStateLibrary.swift */,
-				A2F66EA12936D0950072AD96 /* ShaderLibrary.swift */,
-				A29DE20129327562002EB0B0 /* Node.swift */,
-				A2B5CA32293263C300088B5F /* Renderer.swift */,
-				A2A8124C2933BD8F00DB6AE7 /* Quad.swift */,
-				A26770DD29381C8D008DEB1D /* Suzannes.swift */,
-				A29DE20529327B49002EB0B0 /* Math.swift */,
-				A29DE203293275E9002EB0B0 /* Renderable.swift */,
-				A293B37329C550090087EBDE /* RenderUtilities.swift */,
-				A2B5CA2A29324ECF00088B5F /* VertexDescriptorLibrary.swift */,
-				A2B5CA222932417000088B5F /* MetalTypes.swift */,
+				A20E89A629CF42C200BAC572 /* AnimationsLibrary.swift */,
 				A29FECAF293164FD00AA9534 /* AppDelegate.swift */,
+				A2A812522933C39300DB6AE7 /* Assets.swift */,
+				A29FECB3293164FF00AA9534 /* Assets.xcassets */,
+				A27872682932E1A700D93839 /* Camera.swift */,
+				A29731392932E61C00BA70D9 /* CameraManager.swift */,
+				A2F50EC029C61AAA00B53D30 /* Characters.swift */,
+				A26770E329382818008DEB1D /* Chest.swift */,
+				A2A812462933126200DB6AE7 /* ColorUtil.swift */,
+				A2A8126C293419AB00DB6AE7 /* Cruiser.swift */,
+				A2A812422932FF4A00DB6AE7 /* Cube.swift */,
+				A2A8124A29339CCB00DB6AE7 /* CubeCollection.swift */,
+				A2DF41C2299AFAAA003E77FD /* CubeMapLoader.swift */,
+				A278726A2932E28500D93839 /* DebugCamera.swift */,
+				A2A81244293309FF00DB6AE7 /* DepthStencilStateLibrary.swift */,
+				A2B5CA242932441000088B5F /* Engine.swift */,
+				A29FC0362972FE4D00359052 /* FirstPersonCamera.swift */,
+				A267711B293B71AF008DEB1D /* Flowers.swift */,
+				A26770F9293A7396008DEB1D /* ForestScene.swift */,
+				A2A45F2529886812001ABD73 /* FrustumStuff.swift */,
+				A2B5CA302932624B00088B5F /* GameObject.swift */,
+				A2A8124E2933BF5D00DB6AE7 /* GameTime.swift */,
 				A29FECBE293165A200AA9534 /* GameView.swift */,
-				A29DE2112932CA6B002EB0B0 /* Mouse.swift */,
+				A2A812502933C2BD00DB6AE7 /* Graphics.swift */,
+				A21614DB2968CE4F00F051C1 /* Info.plist */,
+				A2A812482933932A00DB6AE7 /* InstancedGameObject.swift */,
 				A29DE20D2932C6FB002EB0B0 /* Keyboard.swift */,
 				A29DE20F2932C7C2002EB0B0 /* Keycodes.swift */,
-				A20DBDFF29732C530099F67F /* Textures */,
-				A2A7E70C2970F04D00B20A89 /* Models */,
-				A29DE209293284EF002EB0B0 /* SandboxScene.swift */,
-				A2A8124E2933BF5D00DB6AE7 /* GameTime.swift */,
-				A2A812462933126200DB6AE7 /* ColorUtil.swift */,
-				A29731392932E61C00BA70D9 /* CameraManager.swift */,
-				A27872682932E1A700D93839 /* Camera.swift */,
-				A278726A2932E28500D93839 /* DebugCamera.swift */,
-				A29FC0362972FE4D00359052 /* FirstPersonCamera.swift */,
-				A2A45F2529886812001ABD73 /* FrustumStuff.swift */,
-				A2B5CA242932441000088B5F /* Engine.swift */,
-				A2A812502933C2BD00DB6AE7 /* Graphics.swift */,
-				A2A812522933C39300DB6AE7 /* Assets.swift */,
 				A2A812542933C3C700DB6AE7 /* Library.swift */,
-				A2B5CA26293244D000088B5F /* Preferences.swift */,
-				A2A8127229343BCD00DB6AE7 /* Sun.swift */,
-				A291E58029998580005B8A1D /* RenderVariables.swift */,
-				A2A8126E293428D500DB6AE7 /* LightObject.swift */,
 				A2A81270293429ED00DB6AE7 /* LightManager.swift */,
-				A2FF9AC8293BB24D007E6E82 /* SkySphereShaders.metal */,
-				A2F11A21293EB20900D10AEB /* FinalShaders.metal */,
-				A2A8125C2933EEED00DB6AE7 /* Shared.metal */,
-				A29828982936EE7F00831DD6 /* Lighting.metal */,
-				A29FECC02931733B00AA9534 /* BasicShaders.metal */,
-				A25886EE29BCD3DB0055EF1B /* BasicSkinnedShaders.metal */,
-				A2D595FA29C5F8F6007F40EB /* SkinnedShadowShaders.metal */,
-				A2021999296B97A200E4FB12 /* ReflectionSkySphereShaders.metal */,
-				A2716FCE2959DC32005049AB /* ReflectionShaders.metal */,
-				A2942C3F2947DFE2009A7322 /* ShadowShader.metal */,
-				A2A8125E2933F02C00DB6AE7 /* InstancedShaders.metal */,
+				A2A8126E293428D500DB6AE7 /* LightObject.swift */,
+				A29FECB5293164FF00AA9534 /* Main.storyboard */,
+				A29DE20529327B49002EB0B0 /* Math.swift */,
+				A29DE1FD293271E2002EB0B0 /* MeshLibrary.swift */,
+				A2B65EF429DE34470090F1B9 /* TopLevelObjectLibrary.swift */,
+				A245828829E47E27008F5EF2 /* SphereCollision.swift */,
+				A2B5CA222932417000088B5F /* MetalTypes.swift */,
+				A2A7E70C2970F04D00B20A89 /* Models */,
+				A29DE2112932CA6B002EB0B0 /* Mouse.swift */,
+				A29DE20129327562002EB0B0 /* Node.swift */,
 				A29FECB8293164FF00AA9534 /* oliGame.entitlements */,
+				A29DE1FF293274EA002EB0B0 /* Pointer.swift */,
+				A2B5CA26293244D000088B5F /* Preferences.swift */,
+				A2A8124C2933BD8F00DB6AE7 /* Quad.swift */,
+				A29DE203293275E9002EB0B0 /* Renderable.swift */,
+				A2B5CA32293263C300088B5F /* Renderer.swift */,
+				A2B5CA2E2932561D00088B5F /* RenderPipelineStateLibrary.swift */,
+				A293B37329C550090087EBDE /* RenderUtilities.swift */,
+				A291E58029998580005B8A1D /* RenderVariables.swift */,
+				A2A812642934070B00DB6AE7 /* SamplerStateLibrary.swift */,
+				A29DE209293284EF002EB0B0 /* SandboxScene.swift */,
+				A2C6F27F29637E8A00AA8A61 /* Scene.swift */,
+				A29DE20B29328623002EB0B0 /* SceneManager.swift */,
+				A2F66EA12936D0950072AD96 /* ShaderLibrary.swift */,
+				A2B5D92A29A4540300A38AE5 /* Skeleton.swift */,
+				A26770F729398357008DEB1D /* SkySphere.swift */,
+				A2983E5E2997134E001C3AB4 /* Spheres.swift */,
+				A2DF41C6299B1DC9003E77FD /* StaticSphere.swift */,
+				A2A8127229343BCD00DB6AE7 /* Sun.swift */,
+				A26770DD29381C8D008DEB1D /* Suzannes.swift */,
+				A2A81262293402CC00DB6AE7 /* TextureLibrary.swift */,
+				A20DBDFF29732C530099F67F /* Textures */,
+				A267711D293B71B3008DEB1D /* Trees.swift */,
+				A2B5CA2A29324ECF00088B5F /* VertexDescriptorLibrary.swift */,
+				A29828982936EE7F00831DD6 /* Lighting.metal */,
+				A2F11A21293EB20900D10AEB /* FinalShaders.metal */,
+				A2A8125E2933F02C00DB6AE7 /* InstancedShaders.metal */,
+				A2716FCE2959DC32005049AB /* ReflectionShaders.metal */,
+				A2021999296B97A200E4FB12 /* ReflectionSkySphereShaders.metal */,
+				A2942C3F2947DFE2009A7322 /* ShadowShader.metal */,
+				A25886EE29BCD3DB0055EF1B /* BasicSkinnedShaders.metal */,
+				A29FECC02931733B00AA9534 /* BasicShaders.metal */,
+				A2A8125C2933EEED00DB6AE7 /* Shared.metal */,
+				A2D595FC29C5FF35007F40EB /* SkinnedReflectionShaders.metal */,
+				A2D595FA29C5F8F6007F40EB /* SkinnedShadowShaders.metal */,
+				A2FF9AC8293BB24D007E6E82 /* SkySphereShaders.metal */,
 			);
 			path = oliGame;
 			sourceTree = "<group>";
@@ -761,6 +776,7 @@
 				A2B5CA2F2932561D00088B5F /* RenderPipelineStateLibrary.swift in Sources */,
 				A29FECB0293164FD00AA9534 /* AppDelegate.swift in Sources */,
 				A2A81245293309FF00DB6AE7 /* DepthStencilStateLibrary.swift in Sources */,
+				A2F50EC129C61AAA00B53D30 /* Characters.swift in Sources */,
 				A2716FCF2959DC32005049AB /* ReflectionShaders.metal in Sources */,
 				A2A812432932FF4A00DB6AE7 /* Cube.swift in Sources */,
 				A2A812552933C3C700DB6AE7 /* Library.swift in Sources */,
@@ -783,6 +799,8 @@
 				A2DF41C7299B1DC9003E77FD /* StaticSphere.swift in Sources */,
 				A29DE1FE293271E2002EB0B0 /* MeshLibrary.swift in Sources */,
 				A29DE20E2932C6FB002EB0B0 /* Keyboard.swift in Sources */,
+				A20E89A729CF42C200BAC572 /* AnimationsLibrary.swift in Sources */,
+				A245828929E47E27008F5EF2 /* SphereCollision.swift in Sources */,
 				A29DE20A293284EF002EB0B0 /* SandboxScene.swift in Sources */,
 				A2A812472933126200DB6AE7 /* ColorUtil.swift in Sources */,
 				A2B5CA252932441000088B5F /* Engine.swift in Sources */,
@@ -792,6 +810,8 @@
 				A297313A2932E61C00BA70D9 /* CameraManager.swift in Sources */,
 				A26770E429382818008DEB1D /* Chest.swift in Sources */,
 				A29DE2122932CA6B002EB0B0 /* Mouse.swift in Sources */,
+				A2D595FD29C5FF35007F40EB /* SkinnedReflectionShaders.metal in Sources */,
+				A2B65EF529DE34470090F1B9 /* TopLevelObjectLibrary.swift in Sources */,
 				A278726B2932E28500D93839 /* DebugCamera.swift in Sources */,
 				A26770F829398357008DEB1D /* SkySphere.swift in Sources */,
 				A2A45F2629886812001ABD73 /* FrustumStuff.swift in Sources */,

@@ -8,8 +8,11 @@
 import MetalKit
 
 class Node{
+
     private var _name: String = "Node"
     private var _id: String!
+    
+    private var currentAnimation: JointAnimation! = nil
     
     private var _position: float3 = float3(repeating: 0)
     private var _scale: float3 = float3(repeating: 1)
@@ -21,15 +24,67 @@ class Node{
     var culled = false
     var reflective = false
     var preventRender = false
+    var topLevelObject = false
 
     var skinner: Skinner?
-    var transform = matrix_identity_float4x4 //Extra modelMatrix for skelatal animation //Shut up previous me its frickin useless //Shut up previous me its actually useful
+    var transform = matrix_identity_float4x4 //Extra modelMatrix for skelatal animation //Shut up previous me its frickin useless //Shut up previous me its actually useful //Shut up previous me it actually is useless //Actually its useful for some stuff that hadnt been added when I said it was useless //Hmmmm i wonder what this is actually useful for anyway ill just trust my previous self
     var parentModelMatrix = matrix_identity_float4x4
     private var _modelMatrix = matrix_identity_float4x4
     var modelMatrix: matrix_float4x4{
         return matrix_multiply(matrix_multiply(transform, _modelMatrix), parentModelMatrix)
     }
-    
+    func printChildren(level: Int = 0){
+        for _ in 0...level*4{
+            print(" ", terminator: "")
+        }
+        print(self.getName())
+        for _ in 0...level*4{
+            print(" ", terminator: "")
+        }
+        print(self.topLevelObject)
+        for _ in 0...level*4{
+            print(" ", terminator: "")
+        }
+        print("skinner joints count:")
+        for _ in 0...level*4{
+            print(" ", terminator: "")
+        }
+        print(self.skinner?.skeleton.joints.count)
+         
+//        for joint in self.skinner?.skeleton.joints ?? []{
+//            for _ in 0...level*4{
+//                print(" ", terminator: "")
+//            }
+//            print(joint.getName())
+//            for _ in 0...level*4{
+//                print(" ", terminator: "")
+//            }
+//            print("parent:")
+//            for _ in 0...level*4{
+//                print(" ", terminator: "")
+//            }
+//            print(joint.parentNode?.getName())
+//            for _ in 0...level*4{
+//                print(" ", terminator: "")
+//            }
+//            print("parentID:")
+//            for _ in 0...level*4{
+//                print(" ", terminator: "")
+//            }
+//            print(joint.parentNode?.id.uuidString)
+//        }
+        for _ in 0...level*4{
+            print(" ", terminator: "")
+        }
+        print("children:")
+        for child in _children{
+            child.printChildren(level: level + 1)
+        }
+        for _ in 0...level*4{
+            print(" ", terminator: "")
+        }
+        print("done")
+    }
     func updateModelMatrix(){
         _modelMatrix = matrix_identity_float4x4
         _modelMatrix.translate(direction: _position)
@@ -53,11 +108,33 @@ class Node{
     func doUpdate() {}
     func update(deltaTime: Float){
         doUpdate()
+        updateAnimation(at: TimeInterval(GameTime.TotalGameTime))
         for child in _children{
+
             child.parentModelMatrix = self.modelMatrix
             child.update(deltaTime: deltaTime)
         }
         
+    }
+
+    func updateAnimation(at time: TimeInterval) {
+        if let animation: JointAnimation = currentAnimation, let skinner = skinner {
+            let localTime = max(0, time - animation.startTime)
+            let loopTime = fmod(localTime, animation.duration)
+            skinner.skeleton.apply(animation: animation, at: loopTime)
+        }
+    }
+    func childNode(named name: String, recursive: Bool = true) -> Node? {
+        if let child = _children.first(where: { $0.getName() == name } ) {
+            return child
+        } else if recursive {
+            for child in _children {
+                if let grandchild = child.childNode(named: name) {
+                    return grandchild
+                }
+            }
+        }
+        return nil
     }
     func setupRender(renderCommandEncoder: MTLRenderCommandEncoder){
         for child in _children{
@@ -259,6 +336,18 @@ extension Node {
         self.skinner = skinner
         for child in _children{
             setSkinner(skinner: skinner)
+        }
+    }
+    
+    func runAnimation(_ animation: JointAnimation) {
+        self.currentAnimation = animation
+    }
+    func printAnimation(){
+        if(self.currentAnimation != nil){
+            print(self.currentAnimation.name)
+        }
+        for child in _children{
+            child.printAnimation()
         }
     }
 }

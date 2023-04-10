@@ -55,6 +55,7 @@ extension float2:   sizeable{}
 extension Int32:    sizeable{}
 extension Bool:     sizeable{}
 extension float4x4: sizeable{}
+extension UInt:     sizeable{}
 
 struct Vertex: sizeable{
     var position: float3

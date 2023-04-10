@@ -12,11 +12,18 @@ enum ShaderTypes{
     case VertexBasicShadow
     case VertexSkinnedShadow
     case VertexBasicCubemap
+    case VertexSkinnedCubemap
+    
     case VertexInstanced
+    case VertexInstancedSkinned
     case VertexInstancedShadow
+    case VertexInstancedSkinnedShadow
     case VertexInstancedCubemap
+    case VertexInstancedSkinnedCubemap
+    
     case VertexSkySphere
     case VertexSkySphereCubemap
+    
     case VertexFinal
 
     case FragmentBasic
@@ -37,9 +44,13 @@ class ShaderLibrary:  Library<ShaderTypes, MTLFunction>{
         _library.updateValue(Shader(name: "Basic Shadow Vertex Shader", functionName: "vertex_shadow"), forKey: .VertexBasicShadow)
         _library.updateValue(Shader(name: "Skinned Shadow Vertex Shader", functionName: "skinned_vertex_shadow"), forKey: .VertexSkinnedShadow)
         _library.updateValue(Shader(name: "Basic Cubemap Vertex Shader", functionName: "cubemap_vertex_shader"), forKey: .VertexBasicCubemap)
+        _library.updateValue(Shader(name: "Skinned Cubemap Vertex Shader", functionName: "cubemap_skinned_vertex_shader"), forKey: .VertexSkinnedCubemap)
         _library.updateValue(Shader(name: "Instanced Vertex Shader", functionName: "instanced_vertex_shader"), forKey: .VertexInstanced)
+        _library.updateValue(Shader(name: "Skinned Instanced Vertex Shader", functionName: "skinned_instanced_vertex_shader"), forKey: .VertexInstancedSkinned)
         _library.updateValue(Shader(name: "Instanced Shadow Vertex Shader", functionName: "instanced_vertex_shadow"), forKey: .VertexInstancedShadow)
+        _library.updateValue(Shader(name: "Skinned Instanced Shadow Vertex Shader", functionName: "skinned_instanced_vertex_shadow"), forKey: .VertexInstancedSkinnedShadow)
         _library.updateValue(Shader(name: "Instanced Cubemap Vertex Shader", functionName: "cubemap_instanced_vertex_shader"), forKey: .VertexInstancedCubemap)
+        _library.updateValue(Shader(name: "Instanced Cubemap Skinned Vertex Shader", functionName: "skinned_cubemap_instanced_vertex_shader"), forKey: .VertexInstancedSkinnedCubemap)
         
         //SkySphere Vertex Shaders
         _library.updateValue(Shader(name: "SkySphere Vertex Shader", functionName: "skysphere_vertex_shader"), forKey: .VertexSkySphere)

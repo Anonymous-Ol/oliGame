@@ -14,6 +14,7 @@ class GameObject: Node{
     var shadowRenderPipelineStateType: RenderPipelineStateTypes { return .BasicShadow}
     var cubeMapRenderPipelineStateType: RenderPipelineStateTypes { return .BasicCubemap}
     var skinnedShadowRenderPipelineStateType: RenderPipelineStateTypes { return .SkinnedShadow }
+    var skinnedCubemapRenderPipelineStateType: RenderPipelineStateTypes { return .SkinnedCubemap }
     var time: Float = 0
     var _modelConstants = ModelConstants()
     var _material: Material? = nil
@@ -21,6 +22,7 @@ class GameObject: Node{
     var _normalMapTextureType: TextureTypes = TextureTypes.None
             var  cubeMapTexture: MTLTexture! = nil
             var _mesh: Mesh!
+    var indentifier = 0
     private var _reflectionIndex: Int! = nil
     var _usePreRenderedReflections: Bool = false
     var _jointsBuffer: MTLBuffer!
@@ -33,7 +35,7 @@ class GameObject: Node{
         outline.cubeMapTexture = self.cubeMapTexture
         outline._baseColorTextureType = self._baseColorTextureType
         outline._material = self._material
-        
+        outline._topLevelObject = self.topLevelObject
         outline._mesh = self._mesh
         outline._name = self.getName()
         for _child in _children{
@@ -43,6 +45,7 @@ class GameObject: Node{
         }
         return outline
     }
+
     
     init(name: String, meshType: MeshTypes){
         super.init(name: name)
@@ -54,19 +57,41 @@ class GameObject: Node{
     func createBuffers(size: Int){
         _jointsBuffer = Engine.Device.makeBuffer(length: ModelConstants.stride(size), options: [])
     }
-    init(s: GameObjectOutline){
-        super.init(name: s._name)
-        _mesh = s._mesh
-        self._modelConstants = s._modelConstants
-        self._material = s._material
-        self._baseColorTextureType = s._baseColorTextureType
-        self.cubeMapTexture = s.cubeMapTexture
-        self._usePreRenderedReflections = s._usePreRenderedReflections
-        self.setName(s._name)
-        for child in s._children{
-            var childGameObject = GameObject(s: child)
+    func makeCollisionHappen(){
+        print(self.getName())
+        print("Collision!!!!!!")
+    }
+    
+    init(outline: GameObjectOutline){
+        super.init(name: outline._name)
+        _mesh = outline._mesh
+        self._modelConstants = outline._modelConstants
+        self._material = outline._material
+        self._baseColorTextureType = outline._baseColorTextureType
+        self.cubeMapTexture = outline.cubeMapTexture
+        self._usePreRenderedReflections = outline._usePreRenderedReflections
+        self.topLevelObject = outline._topLevelObject
+        self.setName(outline._name)
+        for child in outline._children{
+            let childGameObject = GameObject(outline: child)
             self.addChild(childGameObject)
         }
+    }
+    func returnSelf(name: String) -> GameObject{
+        return GameObject(name: name)
+    }
+    func findIndentifier(indentifier: Int) -> GameObject?{
+        let recursive = true
+        if let child = _children.first(where: { ($0 as? GameObject)?.indentifier == indentifier } ) {
+            return child as? GameObject
+        } else if recursive {
+            for child in _children {
+                if let grandchild = (child as? GameObject)?.findIndentifier(indentifier: indentifier) {
+                    return grandchild
+                }
+            }
+        }
+        return nil
     }
     override func update(deltaTime: Float){
         time += deltaTime
@@ -82,10 +107,25 @@ extension GameObject: Renderable{
     func doCubeMapRender(renderCommandEncoder: MTLRenderCommandEncoder) {
         if(!self.preventRender){
             renderCommandEncoder.setVertexBytes(&_modelConstants, length: ModelConstants.stride, index: 2)
-            RenderUtilities.advancedSetRenderPipelineState(pipelineState: cubeMapRenderPipelineStateType, commandEncoder: renderCommandEncoder)
+            if(self.skinner != nil){
+                RenderUtilities.advancedSetRenderPipelineState(pipelineState: skinnedCubemapRenderPipelineStateType, commandEncoder: renderCommandEncoder)
+            }else{
+                RenderUtilities.advancedSetRenderPipelineState(pipelineState: cubeMapRenderPipelineStateType,         commandEncoder: renderCommandEncoder)
+            }
             renderCommandEncoder.setDepthStencilState(Graphics.DepthStencilStates[.Less])
             renderCommandEncoder.setFragmentSamplerState(Graphics.SamplerStates[.Linear], index: 0)
-            
+            if(self.skinner != nil){
+                if(!bufferMade){
+                    createBuffers(size: 4)
+                    bufferMade = true
+                }
+                if((self.skinner?.skeleton.getRequiredBufferLength())! > _jointsBuffer.length/ModelConstants.size){
+                    createBuffers(size: (self.skinner?.skeleton.getRequiredBufferLength())!)
+                }
+                self.skinner?.skeleton.copyTransforms(into: _jointsBuffer)
+
+                renderCommandEncoder.setVertexBuffer(_jointsBuffer, offset: 0, index: 4)
+            }
             if(_mesh != nil){
                 _mesh.drawCubemapPrimitives(renderCommandEncoder,
                                             baseColorTextureType: _baseColorTextureType,
@@ -96,7 +136,6 @@ extension GameObject: Renderable{
     }
     
     func doRender(renderCommandEncoder: MTLRenderCommandEncoder) {
-        var changed = false
         if(!self.preventRender && !self.culled || !self.isCullable()){
             renderCommandEncoder.setVertexBytes(&_modelConstants, length: ModelConstants.stride, index: 2)
             if(self.skinner != nil){
@@ -215,6 +254,8 @@ struct GameObjectOutline{
     var _normalMapTextureType: TextureTypes = TextureTypes.None
     var  cubeMapTexture: MTLTexture! = nil
     var _mesh: Mesh!
+    var _skeleton: MDLSkeleton!
+    var _topLevelObject: Bool = false
     var _usePreRenderedReflections: Bool = false
     var _name: String = "Node"
     var _children: [GameObjectOutline] = []

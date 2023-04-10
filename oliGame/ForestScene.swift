@@ -19,13 +19,10 @@ class ForestScene: Scene{
         sun2.setLightBrightness(0.5)
         addLight(sun2)
         
-        let skySphere = SkySphere(s:(Assets.Meshes[.SkySphere]?.gameObject.outline)!, skySphereTextureType: .Clouds)
+        let skySphere = SkySphere(s:TopLevelObjectLibrary.genGameObject(modelName: "skysphere").outline, skySphereTextureType: .Clouds)
         skySphere.setCullable(false)
         addChild(skySphere)
-        
-        let testSphere = Assets.Meshes[.SkySphere]?.gameObject
-        testSphere?.setCullable(false)
-        //addChild(testSphere!)
+    
         
         
         firstPersonCamera.setPosition(0,1,0)
@@ -39,12 +36,7 @@ class ForestScene: Scene{
 
         addChild(terrain!)
         
-//        let flowers = Flowers(flowerRedCount: 10, flowerPurpleCount: 10, flowerYellowCount: 10)
-//        addChild(flowers)
-        
-        //let followTree = GameObject(name: "FollowTreee", meshType: .TreePineA)
-        //addChild(followTree)
-        func updateTreePosition(tree: Node, index: Int){
+        func updateTreePosition(tree: jointNode, index: Int){
             let treeRadius: Float = Float.random(in: 8...90)
             let pos = float3(cos(Float(index)) * treeRadius,
                              0,
@@ -59,41 +51,34 @@ class ForestScene: Scene{
         trees?.updateNodes(updateTreePosition)
         addChild(trees!)
         
-//        let transparentCube = Assets.Meshes[.TransparentCube]?.gameObject
-//        transparentCube?.setScale(15)
-//        addChild(transparentCube!)
+        let reflectiveSphere = Assets.Meshes[.Sphere]?.gameObject
+        reflectiveSphere?._material?.reflectivity = 1
+        reflectiveSphere?.setPositionY(1)
+        reflectiveSphere?.setPositionZ(5)
+        addChild(reflectiveSphere!)
+    
+
+        //let char = TopLevelObjectLibrary.genGameObject(modelName: "Character")
+        //addChild(char)
         
-//        let cruiser = GameObject(name: "Space Cruiser", meshType: .Cruiser)
-//        cruiser.setPositionX(5)
-//        let chest = GameObject(name: "Chest", meshType: .Chest)
-//        cruiser.setPositionZ(5)
-//        chest.setScale(0.01)
-//        let normalSphere = GameObject(name: "Normal Sphere", meshType: .RegSphere)
-//        normalSphere.setPositionZ(-5)
-//        normalSphere.setPositionY(1)
-//
-//        addChild(cruiser)
-//        addChild(chest)
-//        addChild(normalSphere)
-//
-//        let reflectiveSphere = Assets.Meshes[.Sphere]?.gameObject
-//        reflectiveSphere?._material?.reflectivity = 1
-//        reflectiveSphere?.setPositionY(1)
-//        addChild(reflectiveSphere!)
-//
-//        let reflectiveSphere2 = GameObject(name:"Reflective Sphere 2", meshType: .Sphere)
-//        reflectiveSphere2.setPositionY(7)
-//        addChild(reflectiveSphere2)
-//
-//        let reflectiveSpheres = Sphere()
-//        addChild(reflectiveSpheres)
-//
-//        let reflectiveSphereStatic = StaticSphere()
-//        addChild(reflectiveSphereStatic)
+        //let char2 = TopLevelObjectLibrary.genGameObject(modelName: "Character")
+        //addChild(char2)
+        //char2.moveZ(4.5)
+
+        let (animation, _) = AnimationsLibrary.animations.first!
+
+        //char.childNode(named: "Skeleton")?.runAnimation(animation)
+
         
+        let charInstanced = Characters(count: 5)
+        addChild(charInstanced)
         
-        let char = Assets.Meshes[.BunnyCharacter]?.gameObject
-        addChild(char!)
+        for (x, skeletonNode) in (charInstanced.childNode(named: "Skeleton") as? InstancedGameObject)?._nodes.enumerated() ?? [].enumerated(){
+            if((x % 2) != 0){
+                skeletonNode.runAnimation(AnimationsLibrary.animations.first!.0)
+            }
+        }
+
  
 
         

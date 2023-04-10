@@ -83,7 +83,7 @@ class Mesh{
    private var _vertices: [Vertex] = []
    private var _instanceCount: Int = 1
    private var _submeshes: [Submesh] = []
-   private var _vertexCount: Int = 0
+           var _vertexCount: Int = 0
    private var _name: String = ""
    var topLevelObjectCount: Int = 0
    var gameObject: GameObject!
@@ -143,50 +143,56 @@ class Mesh{
       asset.loadTextures()
       
       let topLevelCount = asset.count
+      
       let topLevelObjects = (0..<topLevelCount).map { asset.object(at: $0) }
       var objectQueue = [MDLObject](topLevelObjects)
       var parentQueue = [GameObject?](repeating: nil, count: topLevelCount)
-      var rootNode = GameObject(name: modelName)
+      let rootNode = GameObject(name: modelName)
       
+      TopLevelObjectLibrary.TopLevelObjects.updateValue(asset, forKey: modelName)
       
-      var instancedRootNode = InstancedGameObject(name: modelName)
+      let instancedRootNode = InstancedGameObject(name: modelName)
+      
       var instancedParentQueue = [InstancedGameObject?](repeating: nil, count: topLevelCount)
       while !objectQueue.isEmpty {
          let mdlObject = objectQueue.removeFirst()
          let instancedParentNode = instancedParentQueue.removeFirst() ?? instancedRootNode
          let parentNode = parentQueue.removeFirst() ?? rootNode
-         var node = GameObject(name: mdlObject.name)
-         var instancedNode = InstancedGameObject(name: mdlObject.name)
+         let node = GameObject(name: mdlObject.name)
+         let instancedNode = InstancedGameObject(name: mdlObject.name)
          
          if let mdlMesh = mdlObject as? MDLMesh {
             let comp = mdlMesh.componentConforming(to: MDLComponent.self) as? MDLAnimationBindComponent
             if(comp != nil){
-               node.skinner = Skinner(skeletonForMDLSkeleton((comp?.skeleton)!))
+               node.setSkinner(skinner: Skinner(skeletonForMDLSkeleton((comp?.skeleton)!)))
+               //node.mdlSkeleton = comp?.skeleton
+               
             }
             node._mesh = createMeshFromMDLMesh(mdlMesh: mdlMesh)
-            instancedNode._mesh = node._mesh
+            instancedNode._mesh = createMeshFromMDLMesh(mdlMesh: mdlMesh)
          }
          
-//         if let mdlSkeleton = mdlObject as? MDLSkeleton {
-//            node.setSkinner(skinner: Skinner(skeletonForMDLSkeleton(mdlSkeleton)))
-//         }
-//         if let animationBinding = mdlObject.animationBind {
-//
-//             if let mdlSkeleton = animationBinding.skeleton {
-//                 print("animationbind")
-//                 node.skinner = Skinner(skeletonForMDLSkeleton(mdlSkeleton),
-//                                        float4x4(animationBinding.geometryBindTransform))
-//             }
-//         }
-//
-//         if let transformStack = mdlObject.transform {
-//            if (transformStack.keyTimes.count > 1) {
-//               print("Warning: Animated transform stacks are not currently supported")
-//            }
-//
-//            node.transform = transformStack.matrix
-//            instancedNode.transform =  transformStack.matrix
-//         }
+         if let animationBinding = mdlObject.animationBind {
+             if animationBinding.jointPaths != nil {
+                 print("Warning: Animation bindings with explicit joint paths are not currently supported")
+             }
+
+             if let mdlAnimation = animationBinding.jointAnimation as? MDLPackedJointAnimation {
+                let animation = JointAnimation(mdlAnimation)
+                AnimationsLibrary.animations.append((animation, node))
+             }
+
+             if let mdlSkeleton = animationBinding.skeleton {
+                //node.mdlSkeleton = mdlSkeleton
+                 node.skinner = Skinner(skeletonForMDLSkeleton(mdlSkeleton), float4x4(animationBinding.geometryBindTransform))
+             }
+         }
+
+         
+         if let mdlSkeleton = mdlObject as? MDLSkeleton {
+            //node.mdlSkeleton = mdlSkeleton
+            node.setSkinner(skinner: Skinner(skeletonForMDLSkeleton(mdlSkeleton)))
+         }
          parentNode.addChild(node)
          instancedParentNode.addChild(instancedNode)
          

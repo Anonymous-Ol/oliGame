@@ -19,7 +19,7 @@ class Sphere: Node {
         
         
     }
-    private func updateFlowerPosition(flower: Node, index: Int){
+    private func updateFlowerPosition(flower: jointNode, index: Int){
         flower.setPosition(float3(0, Float(index * 3), 0))
     }
 }
