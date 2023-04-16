@@ -55,11 +55,19 @@ class ForestScene: Scene{
         reflectiveSphere?._material?.reflectivity = 1
         reflectiveSphere?.setPositionY(1)
         reflectiveSphere?.setPositionZ(5)
-        addChild(reflectiveSphere!)
+        //addChild(reflectiveSphere!)
     
 
-        //let char = TopLevelObjectLibrary.genGameObject(modelName: "Character")
-        //addChild(char)
+        let char =  Character()
+        char.moveX(6)
+        char.printMD = true
+        addChild(char)
+//        let char2 = Character()
+//        char2.motionEnabled = false
+//        addChild(char2)
+        
+        //let aabbForCharacter = AABB(name: "aabbForCharacter", xLength: 2.5, zLength: 2.5, yLength: 4, origin: float3(-1.25,0.0,-1.25))
+        //addChild(aabbForCharacter)
         
         //let char2 = TopLevelObjectLibrary.genGameObject(modelName: "Character")
         //addChild(char2)
@@ -75,6 +83,7 @@ class ForestScene: Scene{
         
         for (x, skeletonNode) in (charInstanced.childNode(named: "Skeleton") as? InstancedGameObject)?._nodes.enumerated() ?? [].enumerated(){
             if((x % 2) != 0){
+
                 skeletonNode.runAnimation(AnimationsLibrary.animations.first!.0)
             }
         }

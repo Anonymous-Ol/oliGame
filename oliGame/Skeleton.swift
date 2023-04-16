@@ -129,7 +129,10 @@ class jointNode{
     var cullable = true
     var topLevelObject = false
     var name = ""
+    var instancedGameObjectNode = false
+    var staticObject = true
     var transform: float4x4 = matrix_identity_float4x4
+    var aabb: AABBInstanced!
     private var currentAnimation: JointAnimation! = nil
     init(){
         
@@ -171,12 +174,25 @@ class jointNode{
         transform.rotate(angle: rotation.x, axis: X_AXIS)
         transform.rotate(angle: rotation.y, axis: Y_AXIS)
         transform.rotate(angle: rotation.z, axis: Z_AXIS)
+        
     }
     func updateAnimation(at time: TimeInterval) {
         if let animation: JointAnimation = currentAnimation, let skinner = skinner {
             let localTime = max(0, time - animation.startTime)
             let loopTime = fmod(localTime, animation.duration)
             skinner.skeleton.apply(animation: animation, at: loopTime)
+        }
+        if(aabb != nil){
+            aabb.update()
+        }
+        if(instancedGameObjectNode && topLevelObject && aabb != nil){
+            if(staticObject){
+                print(staticObject)
+                AABBCollision.addStaticGameObject(object: aabb.AABBParams)
+            }else{
+                print(staticObject)
+                AABBCollision.addMovingGameObject(object: aabb.AABBParams)
+            }
         }
     }
     func afterRotation(){}

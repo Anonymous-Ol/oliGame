@@ -65,12 +65,7 @@ class FirstPersonCamera: Camera{
         if(Keyboard.IsKeyPressed(.leftArrow)){
             self.moveX(-GameTime.DeltaTime * _moveSpeed)
         }
-        if(Keyboard.IsKeyPressed(.w)){
-            self.moveZ(GameTime.DeltaTime * _moveSpeed)
-        }
-        if(Keyboard.IsKeyPressed(.s)){
-            self.moveZ(-GameTime.DeltaTime * _moveSpeed)
-        }
+
         if(Keyboard.IsKeyPressed(.upArrow)){
             self.moveY(GameTime.DeltaTime * _moveSpeed)
         }
