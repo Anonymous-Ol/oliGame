@@ -17,6 +17,8 @@
 		A245828929E47E27008F5EF2 /* SphereCollision.swift in Sources */ = {isa = PBXBuildFile; fileRef = A245828829E47E27008F5EF2 /* SphereCollision.swift */; };
 		A252610929EAC2FA00A72ECF /* AABBCollision.swift in Sources */ = {isa = PBXBuildFile; fileRef = A252610829EAC2FA00A72ECF /* AABBCollision.swift */; };
 		A25886EF29BCD3DB0055EF1B /* BasicSkinnedShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = A25886EE29BCD3DB0055EF1B /* BasicSkinnedShaders.metal */; };
+		A25BBC6B29F3FE670064EC76 /* loki.metal in Sources */ = {isa = PBXBuildFile; fileRef = A25BBC6929F3FE660064EC76 /* loki.metal */; };
+		A25BBC6C29F3FE670064EC76 /* loki_header.metal in Sources */ = {isa = PBXBuildFile; fileRef = A25BBC6A29F3FE670064EC76 /* loki_header.metal */; };
 		A26770DE29381C8D008DEB1D /* Suzannes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26770DD29381C8D008DEB1D /* Suzannes.swift */; };
 		A26770E029381F53008DEB1D /* TheSuzannes.obj in Resources */ = {isa = PBXBuildFile; fileRef = A26770DF29381F53008DEB1D /* TheSuzannes.obj */; };
 		A26770E229381F5E008DEB1D /* TheSuzannes.mtl in Resources */ = {isa = PBXBuildFile; fileRef = A26770E129381F5D008DEB1D /* TheSuzannes.mtl */; };
@@ -187,6 +189,8 @@
 		A245828829E47E27008F5EF2 /* SphereCollision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphereCollision.swift; sourceTree = "<group>"; };
 		A252610829EAC2FA00A72ECF /* AABBCollision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AABBCollision.swift; sourceTree = "<group>"; };
 		A25886EE29BCD3DB0055EF1B /* BasicSkinnedShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = BasicSkinnedShaders.metal; sourceTree = "<group>"; };
+		A25BBC6929F3FE660064EC76 /* loki.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = loki.metal; sourceTree = "<group>"; };
+		A25BBC6A29F3FE670064EC76 /* loki_header.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = loki_header.metal; sourceTree = "<group>"; };
 		A26770DD29381C8D008DEB1D /* Suzannes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Suzannes.swift; sourceTree = "<group>"; };
 		A26770DF29381F53008DEB1D /* TheSuzannes.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TheSuzannes.obj; sourceTree = "<group>"; };
 		A26770E129381F5D008DEB1D /* TheSuzannes.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TheSuzannes.mtl; sourceTree = "<group>"; };
@@ -481,6 +485,8 @@
 				A2A8125E2933F02C00DB6AE7 /* InstancedShaders.metal */,
 				A2F11A21293EB20900D10AEB /* FinalShaders.metal */,
 				A29828982936EE7F00831DD6 /* Lighting.metal */,
+				A25BBC6929F3FE660064EC76 /* loki.metal */,
+				A25BBC6A29F3FE670064EC76 /* loki_header.metal */,
 				A20DC98F29EC95660039A847 /* RayTracingClasses.metal */,
 				A20DC98D29EC95220039A847 /* RayTracingComputeShaders.metal */,
 				A20DC99129EC99270039A847 /* RayTracingMath.metal */,
@@ -807,6 +813,8 @@
 				A2A812552933C3C700DB6AE7 /* Library.swift in Sources */,
 				A20DC98E29EC95220039A847 /* RayTracingComputeShaders.metal in Sources */,
 				A2A8124D2933BD8F00DB6AE7 /* Quad.swift in Sources */,
+				A25BBC6B29F3FE670064EC76 /* loki.metal in Sources */,
+				A25BBC6C29F3FE670064EC76 /* loki_header.metal in Sources */,
 				A267711E293B71B3008DEB1D /* Trees.swift in Sources */,
 				A2983E5F2997134E001C3AB4 /* Spheres.swift in Sources */,
 				A2A8126F293428D500DB6AE7 /* LightObject.swift in Sources */,
@@ -984,6 +992,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = BAXHH9RS5H;
 				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_NO_COMMON_BLOCKS = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = oliGame/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -1013,6 +1022,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = BAXHH9RS5H;
 				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_NO_COMMON_BLOCKS = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = oliGame/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
