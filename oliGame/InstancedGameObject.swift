@@ -142,8 +142,8 @@ class InstancedGameObject: Node{
         _reflectionsBuffer    = Engine.Device.makeBuffer(length: ModelConstants.stride(instanceCount), options: [])
     }
     func createJointBuffer(size: Int){
-        _jointsBuffer =         Engine.Device.makeBuffer(length: ModelConstants.stride(     size    ), options: [])
-        _allJointsBuffer =         Engine.Device.makeBuffer(length: ModelConstants.stride(     size    ), options: [])
+        _jointsBuffer    = Engine.Device.makeBuffer(length: ModelConstants.stride(size), options: [])
+        _allJointsBuffer = Engine.Device.makeBuffer(length: ModelConstants.stride(size), options: [])
     }
     func getRequiredJointBufferLength() -> Int{
         var jointCount = 0

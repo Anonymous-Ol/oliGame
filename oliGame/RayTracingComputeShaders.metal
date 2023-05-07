@@ -8,6 +8,7 @@
 #include <metal_stdlib>
 //#include "RayTracingClasses.metal"
 #include "loki_header.metal"
+#include <simd/simd.h>
 #define M_PI 3.14159265358979323846
 
 using namespace metal;
@@ -89,14 +90,32 @@ public:
     float3 center;
     float radius;
 };
+
+//MARK: RANDOM NUMBER GENERATION
+uint32_t pcg_hash(uint32_t input)
+{
+    uint32_t state = input * 747796405u + 2891336453u;
+    uint32_t word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+    return (word >> 22u) ^ word;
+}
+float pcg_hash_float(uint32_t input)
+{
+    uint32_t max = 4294967295;
+    uint32_t state = input * 747796405u + 2891336453u;
+    uint32_t word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+    return (((word >> 22u) ^ word) / static_cast<float>(max));
+}
 float rand(int x, int y, int z)
 {
     int seed = x + y * 57 + z * 241;
     seed= (seed<< 13) ^ seed;
-    return (( 1.0 - ( (seed * (seed * seed * 15731 + 789221) + 1376312589) & 2147483647) / 1073741824.0f) + 1.0f) / 2.0f;
+    return (( 1.0 - ( (seed * (seed * seed * 15731 + 789221) + 1376312589) & 2147483647) / 1073741824.0f) + 1.0f) * 0.5f;
 }
-int simpleRand(int x, int y, int z){
-    return ((x + y + z) % 499);
+float rand2(int x, int y, int z)
+{
+    int seed = x + y * 57 + z * 241;
+    seed = (seed << 13) ^ seed;
+    return 1.0 - (fmod(fma(seed * seed * seed + 15731.0 * seed + 789221.0, seed, 1376312589.0), 2147483647.0) / 1073741824.0) * 0.5;
 }
 float random_double(float min, float max, int x, int y, int z) {
     // Returns a random real in [min,max).
@@ -109,21 +128,29 @@ float3 random_float3(float min, float max, int x, int y, int z){
     return float3(random_double(min, max, x, y, z), random_double(min, max, y, z, x), random_double(min, max, x, z, y));
 }
 float3 random_in_unit_sphere(int x, int y, int z){
-    while (true) {
-        auto p = random_float3(-1,1, x, y, z);
-        if (pow(length(p), 2) >= 1) continue;
+    for (int i = 0; i < 15; i++) {
+        auto p = random_float3(-1,1, x + i, y - i, z * i);
+        if (dot(p, p) >= 1) continue;
         return p;
     }
+    return float3(0.1, 0.1, 0.1);
 }
-float hash(float3 p) {
-    return fract(sin(dot(p, float3(12.9898, 78.233, 45.5432))) * 43758.5453);
-}
-
-float3 random_point_in_unit_sphere(float2 seed) {
-    float3 p = float3(fract(sin(dot(seed, float2(127.1, 311.7))) * 43758.5453),
-                      fract(sin(dot(seed, float2(269.5, 183.3))) * 43758.5453),
-                      fract(sin(dot(seed, float2(419.2, 371.9))) * 43758.5453));
-    return normalize(p);
+float3 random_in_unit_sphere2(int seed_x, int seed_y, int seed_z)
+{
+    for (int i = 0; i < 1000; i++) {
+        
+        
+        int seed = seed_x + seed_y * 57 + seed_z * 241;
+        seed = (seed << 13) ^ seed;
+        float3 rand_vec = float3(
+                                 ((seed * (seed * seed * 15731 + 789221) + 1376312589) & 0x7fffffff) / float(0x7fffffff),
+                                 ((seed * (seed * seed * 16807 + 2147483647) + 1376312589) & 0x7fffffff) / float(0x7fffffff),
+                                 ((seed * (seed * seed * 48271 + 2147483647) + 1376312589) & 0x7fffffff) / float(0x7fffffff)
+                                 );
+        if (dot(rand_vec, rand_vec) >= 1) continue;
+        return rand_vec;
+    }
+    return float3(0.1, 0.1, 0.1);
 }
 float3 randomPointInUnitSphere(float x, float y, float z) {
     float3 point;
@@ -135,14 +162,72 @@ float3 randomPointInUnitSphere(float x, float y, float z) {
     point.z = r * cos(phi);
     return point;
 }
+uint rand3(uint x, uint y, uint z) {
+    uint seed = x + y * 57u + z * 241u;
+    seed ^= seed << 13u;
+    seed ^= seed >> 17u;
+    seed ^= seed << 5u;
+    return seed;
+}
+float fast_random(uint2 seed) {
+    // This is a simple implementation of a linear congruential generator (LCG).
+    // It has good statistical properties and is very fast.
+    // The LCG algorithm uses a fixed set of coefficients (a, c, and m) to
+    // generate a sequence of pseudorandom numbers. The current value of the seed
+    // is multiplied by a, added to c, and then taken modulo m to get the next
+    // value in the sequence.
+    
+    const ulong a = 1664525u;
+    const ulong c = 1013904223u;
+    const ulong m = 4294967296u;
+    
+    ulong x = dot(float2(seed), float2(a, c));
+    seed = uint2(x, x >> 32u);
+    return float(x) / float(m);
+}
+float random_double3(float min, float max, uint x, uint y, uint z) {
+    // Returns a random real in [min,max).
+    uint randVal = rand3(x, y, z);
+    return fma(float(randVal & 0x7fffffffu), 1.0f / 2147483648.0f, min) * (max - min);
+}
+
+float3 random_float33(float min, float max, uint x, uint y, uint z){
+    return float3(random_double3(min, max, x, y, z), random_double3(min, max, y, z, x), random_double3(min, max, x, z, y));
+}
+float3 random_in_unit_sphere4(int x, int y, int z) {
+    int runs = 0;
+    float3 p;
+    int limit = 15;
+    do {
+        runs++;
+        float3 randVec = float3(
+            1.0f - rand(x + runs, z, y),
+            1.0f - rand(x + runs, y, z),
+            1.0f - rand(x + runs, z, y)
+        ) * 2.0f - 1.0f;
+        p = randVec * (1.0f / sqrt(dot(randVec, randVec)));
+    } while (dot(p, p) >= 1.0f && --limit > 0);
+    return p;
+}
+
+float3 random_in_unit_sphere3(uint x, uint y, uint z){
+    for (uint i = 0; i < 15u; i++) {
+        auto p = random_float33(-1.0f, 1.0f, x + i, y - i, z * i);
+        if (dot(p, p) >= 1.0f) continue;
+        return p;
+    }
+    return float3(0.1f, 0.1f, 0.1f);
+}
+//MARK: END OF RANDOM NUMBER GENERATION
+
 hit_return sphere::hit(ray r, float t_min, float t_max){
     hit_record rec;
     hit_return ret;
     
     float3 oc = r.origin - center;
-    auto a = pow(length(r.direction),2);
+    auto a = length_squared(r.direction);
     auto half_b = dot(oc, r.direction);
-    auto c = pow(length(oc),2) - radius*radius;
+    auto c = length_squared(oc) - radius*radius;
     
     
     auto discriminant = half_b*half_b - a*c;
@@ -158,7 +243,7 @@ hit_return sphere::hit(ray r, float t_min, float t_max){
         root = (-half_b + sqrtd) / a;
         if (root < t_min || t_max < root)
             ret.hit = false;
-            return ret;
+        return ret;
         
     }
     
@@ -200,21 +285,20 @@ public:
 hit_return hittable_list::hit(ray r, float t_min, float t_max) {
     hit_record rec;
     hit_record temp_rec;
-    hit_return ret;
+    hit_return temp_ret;
     bool hit_anything = false;
     auto closest_so_far = t_max;
-    //For some reason if I just set it to maxObjects gpu time goes up to ~25ms (~35fps)
-    int funcMaxObjects = maxObjects;
     
     
-    //
+    
+    
     for (int i = 0; i < 2; i++) {
-            if ((ret = objects[i].hit(r, t_min, closest_so_far)).hit) {
-                temp_rec = ret.rec;
-                hit_anything = true;
-                closest_so_far = temp_rec.t;
-                rec = temp_rec;
-            }
+        if ((temp_ret = objects[i].hit(r, t_min, closest_so_far)).hit) {
+            temp_rec = temp_ret.rec;
+            hit_anything = true;
+            closest_so_far = temp_rec.t;
+            rec = temp_rec;
+        }
     }
     
     hit_return returnn;
@@ -239,74 +323,17 @@ half hit_sphere(float3 center, float radius, ray r) {
 float3 unit_vector(float3 v){
     return v / length(v);
 }
-float3 ray_color(ray r, hittable_list world, int depth, int x, int y, int z){
-    hit_return ret;
-    hit_record rec;
-    float3 finalColor = float3(0,0,0);
-    for(int i = 0; i < 2; i++){
-        
-        if ((ret = world.hit(r, 0, 1000)).hit) {
-            rec = ret.rec;
-            finalColor +=  (0.5 * (rec.normal + float3(1,1,1))) / 2;
-        }
-        
-        half3 unit_dir = half3(unit_vector(r.direction));
-        auto t = 0.5*(unit_dir.y + 1.0);
-        finalColor += (((1-t)*float3(1.0,1.0,1.0) + t*float3(0.5, 0.7, 1.0)))/2;
-    }
-    return finalColor;
-}
-//float3 ray_color2(ray r, sphere world, int depth, int x, int y, int z){
-//        return float3(0,0,0);
-//}
-//float3 ray_color1(ray r, sphere world, int depth, int x, int y, int z){
-//    hit_record rec;
-//    hit_return ret;
-//    if(depth <= 0){
-//        return float3(0.5,0.5,0.5);
-//    }
-//    ret = screwinAroundWithHitSphere(r, 0 ,1000, 0.5, float3(0,0,-1));
-//    return float3(0.5, 0.5, 0.5*ret.rec.p.x);
-//    if ((ret = hitSphere(r, 0, 1000, 0.5, float3(0,0,-1))).hit) {
-//        return float3(0.5,0.5,0.5);
-//        rec = ret.rec;
-//        float3 target = rec.p + rec.normal + random_in_unit_sphere(x, y, z);
-//        return 0.5 * ray_color2(ray(rec.p, target - rec.p), world, (depth - 1), (x*2), (y*2), (z*2));
-//    }
-//    half3 unit_dir = half3(unit_vector(r.direction));
-//    auto t = 0.5*(unit_dir.y + 1.0);
-//    return ((1-t)*float3(1.0,1.0,1.0) + t*float3(0.5, 0.7, 1.0));
-//}
-//float3 ray_color0(ray r, sphere world, int depth, int x, int y, int z){
-//    hit_record rec;
-//    hit_return ret;
-//    bool hit = false;
-//    float3 target = float3(0,0,0);
-//    if(depth <= 0){
-//        return float3(0,0,0);
-//    }
-//    if ((ret = hitSphere(r, 0, 1000, 0.5, float3(0,0,-1))).hit) {
-//        rec = ret.rec;
-//        target = rec.p + rec.normal + random_in_unit_sphere(x, y, z);
-//        hit = true;
-//    }
-//    if(!hit){
-//
-//        half3 unit_dir = half3(unit_vector(r.direction));
-//        auto t = 0.5*(unit_dir.y + 1.0);
-//        return ((1-t)*float3(1.0,1.0,1.0) + t*float3(0.5, 0.7, 1.0));
-//    }
-//    return 0.5 * ray_color1(ray(rec.p, target - rec.p), world, (depth - 1), (x*2), (y*2), (z*2));
-//}
-float3 ray_color_iterative(ray r, hittable_list world, int depth, int x, int y, int z, constant float3 *points){
+
+float3 ray_color_iterative(ray r, thread hittable_list* world, int depth, int x, int y, int z, constant float3 *points){
     ray cur_ray = r;
     float cur_attenuation = 1.0;
-    for (int i = 0; i < 50; i++){
+    for (int i = 0; i < 5; i++){
         hit_return ret;
         hit_record rec;
-        if((ret = world.hit(cur_ray, 0.1, 1000)).hit){
+
+        if((ret = world->hit(cur_ray, 0.001, 100000000000)).hit){
             rec = ret.rec;
-            float3 target = rec.p + rec.normal + points[static_cast<int>(rand(x * i, y * i, z * i) * 500)];
+            float3 target = rec.p + rec.normal + random_in_unit_sphere(x * (i + 1), y * (i + 1), z - (i + 1));
             cur_attenuation *= 0.5;
             cur_ray = ray(rec.p, target - rec.p);
         }else{
@@ -323,7 +350,7 @@ kernel void raytrace(uint2 pixel [[thread_position_in_grid]],
                      texture2d<half, access::write> texture [[texture(1)]],
                      texture2d<half, access::write> texture2 [[texture(2)]],
                      constant float3 *points [[buffer(1)]],
-                     constant float  &randomSeed [[buffer(2)]]){
+                     constant float2 &randomSeed [[buffer(2)]]){
     
     //Image
     half aspectRatio = 16.0/9.0;
@@ -334,21 +361,26 @@ kernel void raytrace(uint2 pixel [[thread_position_in_grid]],
     camera cam;
     float3 color(0,0,0);
 
-        //Scene
-        hittable_list scene;
-        sphere s(float3(0,0,-1), 0.5);
-        sphere sTwo(float3(0,-100.5,-1), 100);
-        scene.add(s);
-        scene.add(sTwo);
+    
+    //Scene
+    hittable_list scene;
+    sphere s(float3(0,0,-1), 0.5);
+    sphere sTwo(float3(0,-100.5,-1), 100);
+    scene.add(s);
+    scene.add(sTwo);
+    float2 newRandomSeed = randomSeed;
     for(int i = 0; i < samplesPerPixel; i++){
-        
-        float u = (half(pixel.x) + rand(i, pixel.y, pixel.x)) / (imageWidth - 1);
-        float v = (half(pixel.y) + rand(pixel.x, pixel.y, i)) / (imageHeight - 1);
+        newRandomSeed.x *= i;
+        newRandomSeed.y /= i;
+        newRandomSeed.x += pixel.x;
+        newRandomSeed.y += pixel.y;
+        float u = (half(pixel.x) + pcg_hash_float((uint32_t) randomSeed.x)) / (imageWidth - 1);
+        float v = (half(pixel.y) + pcg_hash_float((uint32_t) randomSeed.y)) / (imageHeight - 1);
         ray r = cam.get_ray(u, v);
-        color += ray_color_iterative(r, scene, 2, pixel.x, pixel.y, i, points);
-        
-        
-        
+        color += ray_color_iterative(r, &scene, 1,  pixel.x + randomSeed.x * 2, pixel.y - randomSeed.y, i + randomSeed.y, points);
+        //
+        //
+        //
     }
     uint2 newPixel = uint2(pixel.x, ((pixel.y-720)*-1)+720);
     color /= samplesPerPixel;
