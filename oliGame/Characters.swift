@@ -8,7 +8,6 @@
 import MetalKit
 
 class Characters: Node {
-    
     init(count: Int){
         super.init(name:"Characters")
         
@@ -17,16 +16,13 @@ class Characters: Node {
         flowerReds.setName("Characters")
         flowerReds.setTopLevelObjects()
         flowerReds.updateNodes(updateFlowerPosition)
-        //flowerReds.continualUpdateNodes(updateCharacterPositionContinuous, time:10)
+        flowerReds.continualUpdateNodes(updateCharacterPositionContinuous, time:10)
         addChild(flowerReds)
         
         
     }
     private func updateFlowerPosition(flower: jointNode, index: Int){
         if(flower.topLevelObject){
-            flower.instancedGameObjectNode = true
-            var aabb = AABBInstanced(xLength: 2.5, zLength: 3, yLength: 2.5, parentGameObject: flower)
-            flower.aabb = aabb
             flower.setPositionX(Float.random(in: -20...20))
             flower.setScale(Float.random(in:0.55...1))
             //flower.rotateY(Float.random(in: 0...360))

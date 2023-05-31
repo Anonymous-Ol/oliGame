@@ -16,7 +16,6 @@ enum MeshTypes{
    case Sphere
    case TheSuzannes
    case Chest
-   case RandomCube
    case Quad
    case SkySphere
    case RegSphere
@@ -67,8 +66,6 @@ class MeshLibrary: Library<MeshTypes, Mesh>{
       _library.updateValue(Mesh(modelName: "untitled2"), forKey: .TransparentCube)
       
       _library.updateValue(Mesh(modelName: "Character", fileExtension: "usdz"), forKey: .BunnyCharacter)
-      
-      _library.updateValue(Mesh(modelName: "randomCube"), forKey: .RandomCube)
       
       
    }

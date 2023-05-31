@@ -13,9 +13,7 @@ class Node{
     private var _id: String!
     
     private var currentAnimation: JointAnimation! = nil
-    var lastPos: float3 = float3(0,0,0)
-    var printMD: Bool = false
-    var movementDelta: float3 = float3(0,0,0)
+    
     private var _position: float3 = float3(repeating: 0)
     private var _scale: float3 = float3(repeating: 1)
     private var _rotation: float3 = float3(repeating: 0)
@@ -34,9 +32,6 @@ class Node{
     private var _modelMatrix = matrix_identity_float4x4
     var modelMatrix: matrix_float4x4{
         return matrix_multiply(matrix_multiply(transform, _modelMatrix), parentModelMatrix)
-    }
-    func addAABB(){
-        //To be overriden
     }
     func printChildren(level: Int = 0){
         for _ in 0...level*4{
@@ -111,14 +106,7 @@ class Node{
     func afterTranslation(){}
     func afterScale(){}
     func doUpdate() {}
-    func onCollision(newPos: float3){
-        self.move(-movementDelta.x, -movementDelta.y, -movementDelta.z)
-    }
     func update(deltaTime: Float){
-        movementDelta = self.getPosition() - lastPos
-        if(printMD){
-            print(movementDelta)
-        }
         doUpdate()
         updateAnimation(at: TimeInterval(GameTime.TotalGameTime))
         for child in _children{
@@ -126,7 +114,6 @@ class Node{
             child.parentModelMatrix = self.modelMatrix
             child.update(deltaTime: deltaTime)
         }
-        lastPos = self.getPosition()
         
     }
 

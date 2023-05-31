@@ -28,10 +28,6 @@ class SceneManager{
         GameTime.UpdateTime(_deltaTime: deltaTime)
         currentScene.updateCameras(deltaTime: deltaTime)
         currentScene.update(deltaTime: deltaTime)
-        AABBCollision.checkAllCollisions()
-        AABBCollision.clearList()
-        //SphereCollision.checkAllCollisions()
-        //SphereCollision.clearList()
     }
     public static func setupRender(renderCommandEncoder: MTLRenderCommandEncoder){
 

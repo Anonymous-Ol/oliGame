@@ -60,7 +60,6 @@ class GameObject: Node{
     func makeCollisionHappen(){
         print(self.getName())
         print("Collision!!!!!!")
-        print(self.getID())
     }
     
     init(outline: GameObjectOutline){
@@ -94,20 +93,11 @@ class GameObject: Node{
         }
         return nil
     }
-    func addAllVertices(object: Int){
-        if(object == 1){
-        }
-    }
     override func update(deltaTime: Float){
         time += deltaTime
         _modelConstants.modelMatrix = self.modelMatrix
         camFrustum = SceneManager.currentScene._cameraManager.currentCamera.cameraFrustum
         doCullTest()
-        if(self.topLevelObject){
-            
-            let sphereStuff: SphereParameters = SphereParameters(centerPosition: self.getModelMatrixPosition(), sphereRadius: self.radius, pgo: self)
-            SphereCollision.addGameObject(object: sphereStuff)
-        }
         super.update(deltaTime: deltaTime)
     }
 

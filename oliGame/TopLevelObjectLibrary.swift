@@ -186,7 +186,6 @@ class TopLevelObjectLibrary{
        var objectQueue = [MDLObject](topLevelObjects)
        var parentQueue = [GameObject?](repeating: nil, count: topLevelCount)
        let rootNode = GameObject(name: modelName)
-       rootNode.topLevelObject = true
        
         var x = 1
        

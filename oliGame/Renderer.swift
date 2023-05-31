@@ -122,12 +122,12 @@ class Renderer: NSObject{
 }
 
 extension Renderer: MTKViewDelegate{
-    func createBuffer(_ data: [float3], device: MTLDevice) -> MTLBuffer? {
-        let byteLength = data.count * MemoryLayout<float3>.stride
+    func createBuffer(_ data: [float2], device: MTLDevice) -> MTLBuffer? {
+        let byteLength = data.count * MemoryLayout<float2>.stride
         guard let buffer = device.makeBuffer(length: byteLength, options: []) else {
             return nil
         }
-        var pointer = buffer.contents().bindMemory(to: float3.self, capacity: data.count)
+        var pointer = buffer.contents().bindMemory(to: float2.self, capacity: data.count)
         for i in data{
             pointer.pointee = i
             pointer = pointer.advanced(by: 1)
@@ -221,6 +221,14 @@ extension Renderer: MTKViewDelegate{
             renderCommandEncoder?.popDebugGroup()
             renderCommandEncoder?.endEncoding()
     }
+    func randomFloatTwos() -> [float2]{
+        var numbers: [float2] = []
+        for _ in (0...50){
+            let seed2 = float2(Float.random(in: 0.0..<1.0), Float.random(in: 0.0..<1.0))
+            numbers.append(seed2)
+        }
+        return numbers
+    }
     func randomPointsInUnitSphere() -> [simd_float3] {
         var points: [float3] = []
         var count = 0
@@ -238,44 +246,44 @@ extension Renderer: MTKViewDelegate{
     }
 
     func draw( in view: MTKView){
-        //SceneManager.Update(deltaTime:  1 / Float(view.preferredFramesPerSecond))
+        SceneManager.Update(deltaTime:  1 / Float(view.preferredFramesPerSecond))
         if(_firstDraw){
-            //createReflectionRenderPassDescriptor()
+            Renderer.createReflectionRenderPassDescriptor()
             createBaseRenderPassDescriptor(view: view)
             _firstDraw = false
         }
-//        let shadowCommandBuffer = Engine.CommandQueue.makeCommandBuffer()
-//        shadowCommandBuffer?.label = "Shadow Command Buffer"
-//        SceneManager.doShadowRender(commandBuffer: shadowCommandBuffer!)
-//        //copyShadowTextureData(commandBuffer: shadowCommandBuffer!)
-//        shadowCommandBuffer?.commit()
-//        let reflectionsCommandBuffer = Engine.CommandQueue.makeCommandBuffer()
-//        reflectionsCommandBuffer?.label = "Reflections Command Buffer"
-//        SceneManager.doReflectionRender()
-//        SceneManager.ReflectionRender(commandBuffer: reflectionsCommandBuffer!)
-//        reflectionsCommandBuffer?.commit()
-        var seed = float2.random(in: 1..<10000)
-        let pointsBuffer = createBuffer(randomPointsInUnitSphere(), device: Engine.Device)
-        let rayTracingCommandBuffer = Engine.CommandQueue.makeCommandBuffer()
-        let rayTracingEncoder       = rayTracingCommandBuffer?.makeComputeCommandEncoder()
-        rayTracingEncoder?.setComputePipelineState(Renderer.computePipelineState!)
-        rayTracingEncoder?.setBuffer(pointsBuffer, offset: 0, index: 1)
-        rayTracingEncoder?.setBytes(&seed, length: MemoryLayout<float2>.stride, index: 2)
-        rayTracingEncoder?.setTexture(Assets.Textures[.BaseColorRender_0], index: 1)
-        let gridSize: MTLSize = MTLSize(width: 2560, height: 1440, depth: 1)
-        let threadWidth = Renderer.computePipelineState!.threadExecutionWidth
-        let threadHeight = Renderer.computePipelineState!.maxTotalThreadsPerThreadgroup / threadWidth
-        let threadsForThreadgroup = MTLSize(width: threadWidth, height: threadHeight, depth: 1)
-        rayTracingEncoder?.dispatchThreads(gridSize, threadsPerThreadgroup: threadsForThreadgroup)
-        rayTracingEncoder?.endEncoding()
-        rayTracingCommandBuffer?.commit()
+        let shadowCommandBuffer = Engine.CommandQueue.makeCommandBuffer()
+        shadowCommandBuffer?.label = "Shadow Command Buffer"
+        SceneManager.doShadowRender(commandBuffer: shadowCommandBuffer!)
+        //copyShadowTextureData(commandBuffer: shadowCommandBuffer!)
+        shadowCommandBuffer?.commit()
+        let reflectionsCommandBuffer = Engine.CommandQueue.makeCommandBuffer()
+        reflectionsCommandBuffer?.label = "Reflections Command Buffer"
+        SceneManager.doReflectionRender()
+        SceneManager.ReflectionRender(commandBuffer: reflectionsCommandBuffer!)
+        reflectionsCommandBuffer?.commit()
+//        var seed2 = float2(Float.random(in: 0.0..<4000.0), Float.random(in: 0.0..<4000.0))
+//        var seed = float2.random(in: 1..<10000)
+//        let rayTracingCommandBuffer = Engine.CommandQueue.makeCommandBuffer()
+//        let rayTracingEncoder       = rayTracingCommandBuffer?.makeComputeCommandEncoder()
+//        rayTracingEncoder?.setComputePipelineState(Renderer.computePipelineState!)
+//        rayTracingEncoder?.setBuffer(createBuffer(randomFloatTwos(), device: Engine.Device), offset: 0, index: 2)
+//        rayTracingEncoder?.setBytes(&seed2, length: MemoryLayout<float2>.stride, index: 3)
+//        rayTracingEncoder?.setTexture(Assets.Textures[.BaseColorRender_0], index: 1)
+//        let gridSize: MTLSize = MTLSize(width: 2560, height: 1440, depth: 1)
+//        let threadWidth = Renderer.computePipelineState!.threadExecutionWidth
+//        let threadHeight = Renderer.computePipelineState!.maxTotalThreadsPerThreadgroup / threadWidth
+//        let threadsForThreadgroup = MTLSize(width: threadWidth, height: threadHeight, depth: 1)
+//        rayTracingEncoder?.dispatchThreads(gridSize, threadsPerThreadgroup: threadsForThreadgroup)
+//        rayTracingEncoder?.endEncoding()
+//        rayTracingCommandBuffer?.commit()
 
         
         let baseCommandBuffer = Engine.CommandQueue.makeCommandBuffer()
         baseCommandBuffer?.label = "Base Command Buffer"
         rayTracingCommandBuffer?.waitUntilCompleted()
 
-//        baseRenderPass(commandBuffer: baseCommandBuffer!)
+        baseRenderPass(commandBuffer: baseCommandBuffer!)
         finalRenderPass(view: view, commandBuffer: baseCommandBuffer!)
         
         baseCommandBuffer?.present(view.currentDrawable!)

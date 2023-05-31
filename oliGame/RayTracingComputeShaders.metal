@@ -66,9 +66,18 @@ struct hit_record {
         normal = front_face ? outward_normal :-outward_normal;
     }
 };
+//MATERIAL TYPES
+//0: SOME KIND OF ERROR OR PROBLEM. 0 WON'T BE INTERSECTED
+//1: LAMBERTIAN. ALBEDO MUST BE SPECIFIED
+//2: METAL. ALBEDO MUST BE SPECIFIED
+struct material{
+    int type = 0;
+    float3 albedo;
+};
 struct hit_return{
     bool hit;
     hit_record rec;
+    material mat;
 };
 
 class sphere{
@@ -82,29 +91,78 @@ public:
         radius = r;
         
     };
+    sphere(float3 cen, float r, material material){
+        exists = true;
+        center = cen;
+        radius = r;
+        mat = material;
+    }
     
     hit_return hit(ray r, float t_min, float t_max);
     
 public:
+    material mat;
     bool exists = false;
     float3 center;
     float radius;
 };
+float2 hash22(float2 p) {
+    float3 p3 = fract(float3(p.xyx) * float3(.1031, .1030, .0973));
+    p3 += dot(p3, p3.yzx+33.33);
+    return fract((p3.xx+p3.yz)*p3.zy);
 
-//MARK: RANDOM NUMBER GENERATION
-uint32_t pcg_hash(uint32_t input)
-{
-    uint32_t state = input * 747796405u + 2891336453u;
-    uint32_t word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
-    return (word >> 22u) ^ word;
 }
-float pcg_hash_float(uint32_t input)
+float3 hash32(float2 p) {
+    float3 p3 = fract(float3(p.xyx) * float3(0.1031, 0.1030, 0.0973));
+    p3 += dot(p3, p3.yxz+33.33);
+    p3 = fract((p3.xxy+p3.yzz)*p3.zyx);
+    p3 *= fract(p.xxy + 0.1);
+    p3 = fract(p3 * 123.456);
+    
+    float2 px = p * 2.3282 + float2(120, 120);
+    float3 p3x = fract(float3(px.xyx) * float3(0.1031, 0.1030, 0.0973));
+    p3x += dot(p3x, p3x.yxz+33.33);
+    p3x = fract((p3x.xxy+p3.yzz)*p3x.zyx);
+    p3x *= fract(px.xxy + 0.1);
+    p3x = fract(p3x * 123.456);
+    return mix(p3, p3x, 0.5);
+}
+
+float3 random_in_unit_sphere_newnew(float2 p) {
+    float3 rand = hash32(p);
+    float phi = 2.0 * 3.14159f * rand.x;
+    float cosTheta = 2.0 * rand.y - 1.0;
+    float u = rand.z;
+
+    float theta = acos(cosTheta);
+    float r = pow(u, 1.0 / 3.0);
+
+    float x = r * sin(theta) * cos(phi);
+    float y = r * sin(theta) * sin(phi);
+    float z = r * cos(theta);
+
+    return float3(x, y, z);
+}
+float3 random_in_hemisphere(float2 p, float3 normal){
+    float3 in_unit_sphere = random_in_unit_sphere_newnew(p);
+    if (dot(in_unit_sphere, normal) > 0.0) // In the same hemisphere as the normal
+        return in_unit_sphere;
+    else
+        return -in_unit_sphere;
+}
+
+
+float pcg_hash_float(uint32_t seed)
 {
     uint32_t max = 4294967295;
-    uint32_t state = input * 747796405u + 2891336453u;
-    uint32_t word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
-    return (((word >> 22u) ^ word) / static_cast<float>(max));
+    seed = (seed ^ 61) ^ (seed >> 16);
+    seed *= 9;
+    seed = seed ^ (seed >> 4);
+    seed *= 0x27d4eb2d;
+    seed = seed ^ (seed >> 15);
+    return (seed / static_cast<float>(max));
 }
+
 float rand(int x, int y, int z)
 {
     int seed = x + y * 57 + z * 241;
@@ -121,15 +179,30 @@ float random_double(float min, float max, int x, int y, int z) {
     // Returns a random real in [min,max).
     return min + (max-min)*rand(x, y, z);
 }
+float random_doubleNewRand(float min, float max, int x) {
+    // Returns a random real in [min,max).
+    return min + (max-min)*pcg_hash_float(x);
+}
 float3 random_float3(int x, int y, int z){
     return float3(rand(x,y,z), rand(y,x,z), rand(z,x,y));
 }
 float3 random_float3(float min, float max, int x, int y, int z){
     return float3(random_double(min, max, x, y, z), random_double(min, max, y, z, x), random_double(min, max, x, z, y));
 }
+float3 random_float3NewRand(float min, float max, int x){
+    return float3(random_doubleNewRand(min, max, x*2), random_doubleNewRand(min, max, x + 50), random_doubleNewRand(min, max, x * 3));
+}
 float3 random_in_unit_sphere(int x, int y, int z){
-    for (int i = 0; i < 15; i++) {
+    for (int i = 0; i < 5; i++) {
         auto p = random_float3(-1,1, x + i, y - i, z * i);
+        if (dot(p, p) >= 1) continue;
+        return p;
+    }
+    return float3(0.1, 0.1, 0.1);
+}
+float3 random_in_unit_sphereNewRand(int x){
+    for (int i = 0; i < 15; i++) {
+        auto p = random_float3NewRand(-1,1, x * (i + 1));
         if (dot(p, p) >= 1) continue;
         return p;
     }
@@ -218,6 +291,18 @@ float3 random_in_unit_sphere3(uint x, uint y, uint z){
     }
     return float3(0.1f, 0.1f, 0.1f);
 }
+float random_float(float2 seed) {
+    // Hash the seed value to generate two random numbers
+    uint2 hash = (uint2) (seed * 43758.5453);
+    uint random1 = (uint) (hash.x ^ hash.y);
+    uint random2 = (uint) (hash.y ^ hash.x);
+    
+    // Combine the two random numbers to generate a float between 0 and 1
+    uint combined = (random1 << 16) | (random2 >> 16);
+    float result = (float) (combined & 0x007FFFFF) / (float) 0x7FFFFF;
+    
+    return result;
+}
 //MARK: END OF RANDOM NUMBER GENERATION
 
 hit_return sphere::hit(ray r, float t_min, float t_max){
@@ -286,24 +371,27 @@ hit_return hittable_list::hit(ray r, float t_min, float t_max) {
     hit_record rec;
     hit_record temp_rec;
     hit_return temp_ret;
+    material mat;
     bool hit_anything = false;
     auto closest_so_far = t_max;
     
     
     
     
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 4; i++) {
         if ((temp_ret = objects[i].hit(r, t_min, closest_so_far)).hit) {
             temp_rec = temp_ret.rec;
             hit_anything = true;
             closest_so_far = temp_rec.t;
             rec = temp_rec;
+            mat = objects[i].mat;
         }
     }
     
     hit_return returnn;
     returnn.hit = hit_anything;
     returnn.rec = rec;
+    returnn.mat = mat;
     return returnn;
 }
 
@@ -323,19 +411,68 @@ half hit_sphere(float3 center, float radius, ray r) {
 float3 unit_vector(float3 v){
     return v / length(v);
 }
+bool near_zero(float3 x) {
+    // Return true if the vector is close to zero in all dimensions.
+    const auto s = 1e-8;
+    return (x.x < s) && (x.y < s) && (x.z < s);
+}
+ray scatter(thread ray* ray_in, thread hit_return* hit_ret, thread float3* attenuation, thread ray* scattered, float2 seed, float3 normal, float3 p){
+    int type = hit_ret->mat.type;
+    switch(type){
+        case 0:
+            return ray();
+            break;
+        case 1: {
+            hit_record rec;
+            rec = hit_ret->rec;
+            float3 target = rec.p + rec.normal + random_in_unit_sphere_newnew(seed * 999.0 + float2(type, type + 1));
+            *attenuation = hit_ret->mat.albedo;
+            return ray(rec.p, target - rec.p);
+            break;
+        }
+        case 2:{
+            float3 reflected = reflect(unit_vector(ray_in->direction), hit_ret->rec.normal);
+            *attenuation = hit_ret->mat.albedo;
+            return ray(hit_ret->rec.p, reflected);
+            break;
+        }
+    }
 
-float3 ray_color_iterative(ray r, thread hittable_list* world, int depth, int x, int y, int z, constant float3 *points){
+
+            
+
+    return ray();
+}
+ray testScatter(thread hit_return* ret, float2 seed){
+    switch(ret->mat.type){
+        case 0:
+            return ray();
+        case 1:
+            hit_record rec;
+            rec = ret->rec;
+            float3 target = rec.p + rec.normal + random_in_hemisphere(seed * 999.0 + float2(5 * 9, 5 * 9), rec.normal);
+            return ray(rec.p, target - rec.p);
+    }
+
+}
+float3 ray_color_iterative(ray r, thread hittable_list* world, int depth, float2 seed){
     ray cur_ray = r;
-    float cur_attenuation = 1.0;
-    for (int i = 0; i < 5; i++){
+    float3 cur_attenuation(1.0, 1.0, 1.0);
+    
+    for (int i = 0; i < 15; i++){
         hit_return ret;
         hit_record rec;
 
         if((ret = world->hit(cur_ray, 0.001, 100000000000)).hit){
             rec = ret.rec;
-            float3 target = rec.p + rec.normal + random_in_unit_sphere(x * (i + 1), y * (i + 1), z - (i + 1));
-            cur_attenuation *= 0.5;
-            cur_ray = ray(rec.p, target - rec.p);
+            float3 target = rec.p + rec.normal + random_in_hemisphere(seed * 999.0 + float2(depth * 9, depth * 9), rec.normal);
+            float3 attenuation;
+            ray scattered;
+            scattered = scatter(&cur_ray, &ret, &attenuation, &scattered, seed, rec.normal, rec.p);
+                cur_attenuation *= attenuation;
+                cur_ray = scattered;
+            //cur_attenuation *= 0.5;
+            //cur_ray = testScatter(&ret, seed);
         }else{
             float3 unit_direction = unit_vector(cur_ray.direction);
             float t = 0.5 * (unit_direction.y + 1);
@@ -346,17 +483,23 @@ float3 ray_color_iterative(ray r, thread hittable_list* world, int depth, int x,
     return float3(0,0,0);
 }
 
+float3 msaaRayColor3x(ray r, thread hittable_list* world, int depth, float2 seed){
+    float3 color(0,0,0);
+    color += ray_color_iterative(r, world, 5, seed * 1);
+    color += ray_color_iterative(r, world, 5, seed * 2);
+    color += ray_color_iterative(r, world, 5, seed * 3);
+    return color / 3;
+}
 kernel void raytrace(uint2 pixel [[thread_position_in_grid]],
                      texture2d<half, access::write> texture [[texture(1)]],
                      texture2d<half, access::write> texture2 [[texture(2)]],
-                     constant float3 *points [[buffer(1)]],
-                     constant float2 &randomSeed [[buffer(2)]]){
+                     constant float2 *randomSeeds [[buffer(2)]],
+                     constant float2 &randomSeed2 [[buffer(3)]]){
     
     //Image
     half aspectRatio = 16.0/9.0;
     uint16_t imageWidth  = 2560;
     uint16_t imageHeight = imageWidth / aspectRatio;
-    uint16_t samplesPerPixel = 4;
     
     camera cam;
     float3 color(0,0,0);
@@ -364,26 +507,45 @@ kernel void raytrace(uint2 pixel [[thread_position_in_grid]],
     
     //Scene
     hittable_list scene;
-    sphere s(float3(0,0,-1), 0.5);
-    sphere sTwo(float3(0,-100.5,-1), 100);
+    material sphereOne;
+    sphereOne.type = 1;
+    sphereOne.albedo = float3(0.7,0.3,0.3);
+    
+    material sphereTwo;
+    sphereTwo.type = 1;
+    sphereTwo.albedo = float3(0.8, 0.8, 0.0);
+    
+    material sphereThree;
+    sphereThree.type = 2;
+    sphereThree.albedo = float3(0.8, 0.8, 0.8);
+    
+    material sphereFour;
+    sphereFour.type = 2;
+    sphereFour.albedo = float3(0.8, 0.6, 0.2);
+    
+    
+    sphere s(float3(0,0,-1), 0.5, sphereOne);
+    sphere sTwo(float3(0,-100.5,-1), 100, sphereTwo);
+    sphere sThree(float3(-1, 0, -1), 0.5, sphereThree);
+    sphere sFour(float3(1, 0, -1), 0.5, sphereFour);
     scene.add(s);
     scene.add(sTwo);
-    float2 newRandomSeed = randomSeed;
-    for(int i = 0; i < samplesPerPixel; i++){
-        newRandomSeed.x *= i;
-        newRandomSeed.y /= i;
-        newRandomSeed.x += pixel.x;
-        newRandomSeed.y += pixel.y;
-        float u = (half(pixel.x) + pcg_hash_float((uint32_t) randomSeed.x)) / (imageWidth - 1);
-        float v = (half(pixel.y) + pcg_hash_float((uint32_t) randomSeed.y)) / (imageHeight - 1);
+    scene.add(sThree);
+    scene.add(sFour);
+        float u = (half(pixel.x) + hash22(randomSeed2).x) / (imageWidth - 1);
+        float v = (half(pixel.y) + hash22(randomSeed2).y) / (imageHeight - 1);
         ray r = cam.get_ray(u, v);
-        color += ray_color_iterative(r, &scene, 1,  pixel.x + randomSeed.x * 2, pixel.y - randomSeed.y, i + randomSeed.y, points);
-        //
-        //
-        //
-    }
+        
+        float3 p3 = fract(float3(float2(u,v).xyx) * float3(.1031, .1030, .0973));
+        p3 += dot(p3, p3.yzx+33.33);
+        float2 uTwo = fract((p3.xx+p3.yz)*p3.zy);
+
+        
+ 
+        color = msaaRayColor3x(r, &scene, 1, float2(u + uTwo.x, v + uTwo.y));
+
+    
     uint2 newPixel = uint2(pixel.x, ((pixel.y-720)*-1)+720);
-    color /= samplesPerPixel;
     texture.write(half4(float4(color, 1)), newPixel);
 }
 

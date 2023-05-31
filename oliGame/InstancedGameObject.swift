@@ -91,7 +91,6 @@ class InstancedGameObject: Node{
             }
         }
     }
-
     func findIndentifier(indentifier: Int) -> InstancedGameObject?{
         let recursive = true
         if let child = _children.first(where: { ($0 as? InstancedGameObject)?.indentifier == indentifier } ) {
